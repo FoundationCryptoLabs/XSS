@@ -1,7 +1,28 @@
 pragma solidity 0.6.7;
 
 contract CoinLike{
-
+function addAuthorization(address account) external isAuthorized {}
+function removeAuthorization(address account) external isAuthorized {}
+function transfer(address dst, uint256 amount) external returns (bool) {}
+unction transferFrom(address src, address dst, uint256 amount)
+        public returns (bool){}
+ function mint(address usr, uint256 amount) external isAuthorized {} 
+ function burn(address usr, uint256 amount) external {}  
+ function approve(address usr, uint256 amount) external returns (bool) {}
+ function push(address usr, uint256 amount) external {}
+ function pull(address usr, uint256 amount) external {} 
+ function move(address src, address dst, uint256 amount) external {}
+ function permit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external
+    {}   
 }
 
 contract OracleLike{
