@@ -17,6 +17,7 @@ contract SafeEngine {
 
 address Oracle;
 address Coin;
+address Vat;
 
 constructor(address Oracle,)
 
