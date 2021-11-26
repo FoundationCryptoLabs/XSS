@@ -26,7 +26,12 @@ unction transferFrom(address src, address dst, uint256 amount)
 }
 
 contract OracleLike{
-
+function addAuthorization(address account) external isAuthorized {}
+function removeAuthorization(address account) external isAuthorized {}
+function setCollateralRatio(uint256 ratio) external isAuthorized {}
+function peekCollateralRatio() external returns(uint256) {}
+function peekBSMA() external returns(uint256){}
+function peekBX() external returns(uint256){}
 }
 
 contract SafeEngine {
