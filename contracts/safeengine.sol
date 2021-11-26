@@ -40,19 +40,20 @@ struct SAFE {
 
     SAFE[] safes;
 
-function getSafe(uint256 index) public returns (uint256, uint256) {
-    uint256 memory addrs = new address[](indexes.length);
-    uint256 memory funds = new uint[](indexes.length);
-
-    for (uint i = 0; i < indexes.length; i++) {
-        Person storage person = people[indexes[i]];
-        addrs[i] = person.addr;
-        funds[i] = person.funds;
-    }
-
-    return (addrs, funds);
+// Test function; can be decomposed.
+function getSafeCollateral(uint256 index) public returns (uint256) {
+    SAFE storage safe = safe[index];
+    uint256 memory collateral = safe.collateral;
+    //
+    return collateral;
 }
-}
+
+// Test function; can be decomposed.
+function getSafeDebt(uint256 index) public returns (uint256) {
+  SAFE storage safe = safe[index];
+  uint256 memory debtIssued = safe.debtIssued;
+  return debtIssued;
+
 
 struct safe {
    mapping(address=>uint256) safeID
@@ -73,7 +74,7 @@ constructor(address ORC, address STABLE, uint256 DUST){
  function computeDebtLimit(uint256 SafeId, address Oracle) internal returns (uint256){
    Orc = new OracleLike(Oracle);
    //TODO: check safeID exists;
-   uint256 collateral = safes[SafeID].collateral; //Amount of RBTC Collateral in SAFE
+   uint256 collateral = ; //Amount of RBTC Collateral in SAFE
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
    uint256 currentDebtLimit = (collateral * currentBSMA) / currentCollateralRatio * 10000 // maximum amount of xBTC that can be minted by a particular safe given current collateral
