@@ -4,13 +4,13 @@ contract CoinLike{
 function addAuthorization(address account) external isAuthorized {}
 function removeAuthorization(address account) external isAuthorized {}
 function transfer(address dst, uint256 amount) external returns (bool) {}
-unction transferFrom(address src, address dst, uint256 amount)
+function transferFrom(address src, address dst, uint256 amount)
         public returns (bool){}
- function mint(address usr, uint256 amount) external isAuthorized {} 
- function burn(address usr, uint256 amount) external {}  
+ function mint(address usr, uint256 amount) external isAuthorized {}
+ function burn(address usr, uint256 amount) external {}
  function approve(address usr, uint256 amount) external returns (bool) {}
  function push(address usr, uint256 amount) external {}
- function pull(address usr, uint256 amount) external {} 
+ function pull(address usr, uint256 amount) external {}
  function move(address src, address dst, uint256 amount) external {}
  function permit(
         address holder,
@@ -22,7 +22,7 @@ unction transferFrom(address src, address dst, uint256 amount)
         bytes32 r,
         bytes32 s
     ) external
-    {}   
+    {}
 }
 
 contract OracleLike{
@@ -33,8 +33,6 @@ function peekCollateralRatio() external returns(uint256) {}
 function peekBSMA() external returns(uint256){}
 function peekBX() external returns(uint256){}
 }
-
-contract SafeEngine {
 
 
  struct safe {
