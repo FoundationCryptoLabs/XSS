@@ -33,6 +33,7 @@ contract OracleLike{
   function peekBSMA() external returns(uint256){}
   function peekBX() external returns(uint256){}
 }
+
 struct SAFE {
     mapping(address=>uint256) collateral;
     mapping(address=>uint256) debtIssued;
@@ -54,12 +55,6 @@ function getSafeDebt(uint256 index) public returns (uint256) {
   uint256 memory debtIssued = safe.debtIssued;
   return debtIssued;
 
-
-struct safe {
-   mapping(address=>uint256) safeID
-   mapping(address=>uint256) collateral
-   mapping(address=>uint256) debtIssued
- }
 
 address Oracle;
 address Coin;
