@@ -41,41 +41,50 @@ function peekBX() external returns(uint256){}
 
 address Oracle;
 address Coin;
-address Vat;
+uint256 dust; //Minimum amount of collateral deposited
 
-constructor(address ORC, address STABLE){
+constructor(address ORC, address STABLE, uint256 DUST){
   Oracle = ORC;
   Coin = STABLE;
+  dust = DUST;
 }
 
- function computeDebtLimit(uint256 SafeId, address Oracle) internal return(uint256){
+ function computeDebtLimit(uint256 SafeId, address Oracle) internal returns (uint256){
    Orc = new OracleLike(Oracle);
-   collateral = safes[SafeID].collateral();
-   // currentSMA = Orc.peekSMA(); //USD value of redemption rate
-   uint256 currentBSMA = Orc.peekBSMA(); //Percentage of BTC value of redemption rate for 1 xBTC, to be divided by 100
+   //TODO: check safeID exists;
+   uint256 collateral = safes[SafeID].collateral(); //Amount of RBTC Collateral in SAFE
+   uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
    uint256 currentDebtLimit = (collateral * currentBSMA) / currentCollateralRatio * 10000 // maximum amount of xBTC that can be minted by a particular safe given current collateral
    return currentDebtLimit;
  }
 
+ function computeRedeemPrice(address Oracle) internal returns (uint256){
+   Orc = new OracleLike(Oracle);
+   //TODO: check safeID exists;
+   uint256 currentSMA = Orc.peekBX(); //BTC-USD exchange rate
+   uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
+   uint256 currentRedeemPrice = (currentSMA/currentBSMA)*1000000 //1M multiplier to preserve precision of fraction
+   return currentRedeemPrice;
+ }
+
  function sendRBTC(address payable _to, uint256 amount) internal payable {
         // Call returns a boolean value indicating success or failure.
-        // This is the current recommended method to use.
         (bool sent, bytes memory data) = _to.call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
 
  //deposit RBTC collateral in safe
  //use existing safeID or make new safe with lastSAFEID+1
+ //TODO: add reciever fallback function to accept native RBTC.
  function depositCollateral(uint256 SafeID) public {
     require(msg.value>=dust, 'safeengine/non-dusty-collateral-required');
+    // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     safe[SafeID].collateral = (safe[SafeID].collateral) + msg.value;
-
-
   }
 
   function takeDebt(uint256 amount, uint256 SafeID) public {
-    require(safe[SafeID].address==msg.sender, 'safeengine/safe-not-authorised');
+    require(safe[SafeID].address==msg.sender, 'safeengine/safe-not-authorised'); // SAFE only accessible by creator
     //collateral sufficiency check
     debtLimit = computeDebtLimit(uint256 SafeID, address Oracle);
     issuedDebt = safe[SafeID].debtIssued;
@@ -93,18 +102,17 @@ constructor(address ORC, address STABLE){
     Coin = new CoinLike(coin);
     safe[SafeID].debtIssued = (safe[SafeID].debtIssued - amount)
     Coin.burn(msg.sender, amount);
-
-
   }
 
   function redeemCoins(uint256 amount) public {
     Coin = new CoinLike(coin);
     require(Coin.balanceOf(msg.sender)>=amount, "safeengine/exceeds-balance");
-    Orc = new OracleLike(Oracle);
-    redemptionRatePerCoin = Orc.peekBSMA();
-    totalRedemptionAmount = redemptionRatePerCoin * amount;
+    redemptionRatePerCoin = computeRedeemPrice(Orc);
+    totalRedemptionAmount = (redemptionRatePerCoin * amount)/1000000;
     Coin.burn(msg.sender, amount);
-    sendRBTC(msg.sender, amount);
+    sendRBTC(msg.sender, totalRedemptionAmount);
   }
+
+  function removeCollateral()
 
 }

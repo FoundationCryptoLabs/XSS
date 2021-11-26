@@ -85,7 +85,8 @@ contract Coin {
     // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
     bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
 
-    // defined with chainId 31 for B-RAI
+    // defined with chainId 31 for BRAIN-STABLECOIN
+    // TODO: check decimals of RBTC, BTC and ERC20 STABLE match/are correctly converted.
     constructor(
         string memory name_,
         string memory symbol_,
