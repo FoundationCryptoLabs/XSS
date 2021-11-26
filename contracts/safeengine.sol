@@ -19,7 +19,10 @@ address Oracle;
 address Coin;
 address Vat;
 
-constructor(address Oracle,)
+constructor(address ORC, address STABLE){
+  Oracle = ORC;
+  Coin = STABLE;
+}
 
  function computeDebtLimit(uint256 SafeId, address Oracle) internal return(uint256){
    Orc = new OracleLike(Oracle);
