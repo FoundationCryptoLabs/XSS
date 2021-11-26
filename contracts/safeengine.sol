@@ -34,15 +34,15 @@ contract OracleLike{
   function peekBX() external returns(uint256){}
 }
 struct SAFE {
-    mapping(address=>uint256) collateral
-    mapping(address=>uint256) debtIssued
+    mapping(address=>uint256) collateral;
+    mapping(address=>uint256) debtIssued;
     }
 
-    SAFE[] safes;
+    SAFE[] safes; // list of all SAFE Balances
 
 // Test function; can be decomposed.
 function getSafeCollateral(uint256 index) public returns (uint256) {
-    SAFE storage safe = safe[index];
+    SAFE storage safe = safes[index];
     uint256 memory collateral = safe.collateral;
     //
     return collateral;
@@ -50,7 +50,7 @@ function getSafeCollateral(uint256 index) public returns (uint256) {
 
 // Test function; can be decomposed.
 function getSafeDebt(uint256 index) public returns (uint256) {
-  SAFE storage safe = safe[index];
+  SAFE storage safe = safes[index];
   uint256 memory debtIssued = safe.debtIssued;
   return debtIssued;
 
@@ -86,7 +86,7 @@ constructor(address ORC, address STABLE, uint256 DUST){
    //TODO: check safeID exists;
    uint256 currentSMA = Orc.peekBX(); //BTC-USD exchange rate
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
-   uint256 currentRedeemPrice = (currentSMA/currentBSMA)*1000000 //1M multiplier to preserve precision of fraction
+   uint256 currentRedeemPrice = (currentSMA/currentBSMA)*1000000 //10e6 multiplier to preserve precision of fraction
    return currentRedeemPrice;
  }
 
@@ -101,27 +101,29 @@ constructor(address ORC, address STABLE, uint256 DUST){
  function depositCollateral(uint256 SafeID) public payable {
     require(msg.value>=dust, 'safeengine/non-dusty-collateral-required');
     // TODO: check SAFEID exists, or create new one via getLastSafeID function.
-    safe[SafeID].collateral = (safe[SafeID].collateral) + msg.value;
+    // SAFE storage safe = safes[SafeID]; // modularized for clarity
+    safes[SafeID].collateral = (safes[SafeID].collateral) + msg.value;
   }
 
   function takeDebt(uint256 amount, uint256 SafeID) public {
-    require(safe[SafeID].address==msg.sender, 'safeengine/safe-not-authorised'); // SAFE only accessible by creator
+    require(safes[SafeID].address==msg.sender, 'safeengine/safe-not-authorised'); // SAFE only accessible by creator
     //collateral sufficiency check
+    // SAFE storage safe = safes[SafeID];
     debtLimit = computeDebtLimit(uint256 SafeID, address Oracle);
-    issuedDebt = safe[SafeID].debtIssued;
+    issuedDebt = safes[SafeID].debtIssued;
     availableDebt = debtLimit - issuedDebt;
     require(availableDebt >= amount, "safeengine/insufficient-collateral-to-mint-stables");
     Coin = new CoinLike(coin);
-    safe[SafeID].debtIssued = (safe[SafeID].debtIssued + amount)
+    safes[SafeID].debtIssued = (safes[SafeID].debtIssued + amount)
     Coin.mint(msg.sender, amount);
   }
 
   function returnDebt(uint256 amount, uint256 SafeID) public {
-    require(safe[SafeID].address==msg.sender, 'safeengine/safe-not-authorised');
-    issuedDebt = safe[SafeID].debtIssued;
+    require(safes[SafeID].address==msg.sender, 'safeengine/safe-not-authorised');
+    issuedDebt = safes[SafeID].debtIssued;
     require(issuedDebt >= amount, "safeengine/exceeds-debt-amount");
     Coin = new CoinLike(coin);
-    safe[SafeID].debtIssued = (safe[SafeID].debtIssued - amount)
+    safes[SafeID].debtIssued = (safes[SafeID].debtIssued - amount)
     Coin.burn(msg.sender, amount);
   }
 
@@ -139,7 +141,7 @@ constructor(address ORC, address STABLE, uint256 DUST){
      // TODO: check SAFEID exists.
      uint256 collateral = safes[SafeID].collateral; //Amount of RBTC Collateral in SAFE
      require(amount<=collateral, 'safeengine/amount-exceeds-deposits');
-     safe[SafeID].collateral = (safe[SafeID].collateral) - amount;
+     safes[SafeID].collateral = (safes[SafeID].collateral) - amount;
      sendRBTC(msg.sender, amount);
    }
 }
