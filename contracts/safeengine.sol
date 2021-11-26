@@ -15,14 +15,18 @@ contract SafeEngine {
    mapping(address=>uint256) safeID
  }
 
+address Oracle;
+address Coin;
+
+constructor(address Oracle,)
 
  function computeDebtLimit(uint256 SafeId, address Oracle) internal return(uint256){
    Orc = new OracleLike(Oracle);
    collateral = safes[SafeID].collateral();
-   currentSMA = Orc.peekSMA(); //USD value of redemption rate
-   currentBSMA = Orc.peekBSMA(); //BTC value of redemption rate for 1 xBTC
-   currentCollateralRatio = Orc.peekCollateralRatio(); //125% by default
-   currentDebtLimit = collateral * currentBSMA * currentCollateralRatio // maximum amount of xBTC that can be minted by a particular safe given current collateral
+   // currentSMA = Orc.peekSMA(); //USD value of redemption rate
+   uint256 currentBSMA = Orc.peekBSMA(); //Percentage of BTC value of redemption rate for 1 xBTC, to be divided by 100
+   uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
+   uint256 currentDebtLimit = (collateral * currentBSMA) / currentCollateralRatio * 10000 // maximum amount of xBTC that can be minted by a particular safe given current collateral
    return currentDebtLimit;
  }
 

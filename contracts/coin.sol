@@ -15,6 +15,8 @@
 
 pragma solidity 0.6.7;
 
+// Core ERC20 contract for minting xBTC Stablecoin
+
 contract Coin {
     // --- Auth ---
     mapping (address => uint256) public authorizedAccounts;
