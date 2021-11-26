@@ -1,18 +1,18 @@
 pragma solidity 0.6.7;
 
 contract CoinLike{
-function addAuthorization(address account) external isAuthorized {}
-function removeAuthorization(address account) external isAuthorized {}
-function transfer(address dst, uint256 amount) external returns (bool) {}
-function transferFrom(address src, address dst, uint256 amount)
+  function addAuthorization(address account) external isAuthorized {}
+  function removeAuthorization(address account) external isAuthorized {}
+  function transfer(address dst, uint256 amount) external returns (bool) {}
+  function transferFrom(address src, address dst, uint256 amount)
         public returns (bool){}
- function mint(address usr, uint256 amount) external isAuthorized {}
- function burn(address usr, uint256 amount) external {}
- function approve(address usr, uint256 amount) external returns (bool) {}
- function push(address usr, uint256 amount) external {}
- function pull(address usr, uint256 amount) external {}
- function move(address src, address dst, uint256 amount) external {}
- function permit(
+  function mint(address usr, uint256 amount) external isAuthorized {}
+  function burn(address usr, uint256 amount) external {}
+  function approve(address usr, uint256 amount) external returns (bool) {}
+  function push(address usr, uint256 amount) external {}
+  function pull(address usr, uint256 amount) external {}
+  function move(address src, address dst, uint256 amount) external {}
+  function permit(
         address holder,
         address spender,
         uint256 nonce,
@@ -26,17 +26,38 @@ function transferFrom(address src, address dst, uint256 amount)
 }
 
 contract OracleLike{
-function addAuthorization(address account) external isAuthorized {}
-function removeAuthorization(address account) external isAuthorized {}
-function setCollateralRatio(uint256 ratio) external isAuthorized {}
-function peekCollateralRatio() external returns(uint256) {}
-function peekBSMA() external returns(uint256){}
-function peekBX() external returns(uint256){}
+  function addAuthorization(address account) external isAuthorized {}
+  function removeAuthorization(address account) external isAuthorized {}
+  function setCollateralRatio(uint256 ratio) external isAuthorized {}
+  function peekCollateralRatio() external returns(uint256) {}
+  function peekBSMA() external returns(uint256){}
+  function peekBX() external returns(uint256){}
+}
+struct SAFE {
+    mapping(address=>uint256) collateral
+    mapping(address=>uint256) debtIssued
+    }
+
+    SAFE[] safes;
+
+function getSafe(uint256 index) public returns (uint256, uint256) {
+    uint256 memory addrs = new address[](indexes.length);
+    uint256 memory funds = new uint[](indexes.length);
+
+    for (uint i = 0; i < indexes.length; i++) {
+        Person storage person = people[indexes[i]];
+        addrs[i] = person.addr;
+        funds[i] = person.funds;
+    }
+
+    return (addrs, funds);
+}
 }
 
-
- struct safe {
+struct safe {
    mapping(address=>uint256) safeID
+   mapping(address=>uint256) collateral
+   mapping(address=>uint256) debtIssued
  }
 
 address Oracle;
@@ -52,7 +73,7 @@ constructor(address ORC, address STABLE, uint256 DUST){
  function computeDebtLimit(uint256 SafeId, address Oracle) internal returns (uint256){
    Orc = new OracleLike(Oracle);
    //TODO: check safeID exists;
-   uint256 collateral = safes[SafeID].collateral(); //Amount of RBTC Collateral in SAFE
+   uint256 collateral = safes[SafeID].collateral; //Amount of RBTC Collateral in SAFE
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
    uint256 currentDebtLimit = (collateral * currentBSMA) / currentCollateralRatio * 10000 // maximum amount of xBTC that can be minted by a particular safe given current collateral
@@ -71,13 +92,12 @@ constructor(address ORC, address STABLE, uint256 DUST){
  function sendRBTC(address payable _to, uint256 amount) internal payable {
         // Call returns a boolean value indicating success or failure.
         (bool sent, bytes memory data) = _to.call{value: amount}("");
-        require(sent, "Failed to send Ether");
+        require(sent, "Failed to send RBTC");
     }
 
  //deposit RBTC collateral in safe
  //use existing safeID or make new safe with lastSAFEID+1
- //TODO: add reciever fallback function to accept native RBTC.
- function depositCollateral(uint256 SafeID) public {
+ function depositCollateral(uint256 SafeID) public payable {
     require(msg.value>=dust, 'safeengine/non-dusty-collateral-required');
     // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     safe[SafeID].collateral = (safe[SafeID].collateral) + msg.value;
@@ -104,7 +124,7 @@ constructor(address ORC, address STABLE, uint256 DUST){
     Coin.burn(msg.sender, amount);
   }
 
-  function redeemCoins(uint256 amount) public {
+  function redeemCoins(uint256 amount) public payable {
     Coin = new CoinLike(coin);
     require(Coin.balanceOf(msg.sender)>=amount, "safeengine/exceeds-balance");
     redemptionRatePerCoin = computeRedeemPrice(Orc);
@@ -113,6 +133,12 @@ constructor(address ORC, address STABLE, uint256 DUST){
     sendRBTC(msg.sender, totalRedemptionAmount);
   }
 
-  function removeCollateral()
-
+  function removeCollateral(uint256 SafeID, uint256 amount) public payable {
+     require(amount>=dust, 'safeengine/non-dusty-collateral-required');
+     // TODO: check SAFEID exists.
+     uint256 collateral = safes[SafeID].collateral; //Amount of RBTC Collateral in SAFE
+     require(amount<=collateral, 'safeengine/amount-exceeds-deposits');
+     safe[SafeID].collateral = (safe[SafeID].collateral) - amount;
+     sendRBTC(msg.sender, amount);
+   }
 }
