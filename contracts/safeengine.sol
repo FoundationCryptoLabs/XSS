@@ -42,15 +42,8 @@ contract OracleLike{
 
 contract SafeTracker {
 
-struct SAFE {
-    uint256 collateral;
-    uint256 debtIssued;
-    address UserAddress;
-    }
-
-    SAFE[] safes; // list of all SAFE Balances
-
-
+mapping (address=>uint256) public collateral; // collateral deposited by UserAddress
+mapping (address=>uint256) public debtIssued; // debt issued by UserAddress
 
 address Oracle;
 address Coin;
@@ -112,6 +105,7 @@ function getSafeDebt(uint256 index) public returns (uint256) {
     // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     // SAFE storage safe = safes[SafeID]; // modularized for clarity
     safes[SafeId].collateral = (safes[SafeId].collateral) + msg.value;
+    sad
   }
 
   function takeDebt(uint256 amount, uint256 SafeId) public {
