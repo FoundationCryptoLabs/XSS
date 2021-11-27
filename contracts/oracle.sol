@@ -48,7 +48,7 @@ contract Orc {
   // Returns current 4 year SMA for BTC/USD. FIXME: Template Function used.
   function peekBSMA() external returns(uint256){
     uint256 cblock = block.number;
-    uint256 BSMA = 0;
+    uint256 BSMA = 20000;
     if (cblock%2==0){
       uint256 BSMA = 22000;
     }
@@ -61,7 +61,7 @@ contract Orc {
 // Returns current BTC/USD exchange rate. FIXME: Template Function used.
   function peekBX() external returns(uint256){
     uint256 cblock = block.number;
-    uint256 BX = 0;
+    uint256 BX = 60000;
     if (cblock%2==0){
       uint256 BX = 56000;
     }

@@ -52,34 +52,52 @@ uint256 dust; //Minimum amount of collateral deposited
 OracleLike Orc;
 CoinLike coin;
 
-constructor(address ORC, address STABLE, uint256 DUST) public {
+constructor(address ORC, uint256 DUST) public {
   Oracle = ORC;
-  Coin = STABLE;
   dust = DUST;
+  authorizedAccounts[msg.sender] = 1;
+}
+event AddAuthorization(address account);
+event RemoveAuthorization(address account);
+
+mapping (address => uint256) public authorizedAccounts;
+/**
+ * @notice Add auth to an account
+ * @param account Account to add auth to
+ */
+function addAuthorization(address account) external isAuthorized {
+    authorizedAccounts[account] = 1;
+    emit AddAuthorization(account);
+}
+/**
+ * @notice Remove auth from an account
+ * @param account Account to remove auth from
+ */
+function removeAuthorization(address account) external isAuthorized {
+    authorizedAccounts[account] = 0;
+    emit RemoveAuthorization(account);
+}
+/**
+* @notice Checks whether msg.sender can call an authed function
+**/
+modifier isAuthorized {
+    require(authorizedAccounts[msg.sender] == 1, "Coin/account-not-authorized");
+    _;
 }
 
-// Test function; can be decomposed.
-function getSafeCollateral(uint256 index) public returns (uint256) {
-    SAFE storage safe = safes[index];
-    uint256 collateral = safe.collateral;
-    //
-    return collateral;
+function setCoin(address STABLE) external isAuthorized {
+  Coin = STABLE;
 }
 
-// Test function; can be decomposed.
-function getSafeDebt(uint256 index) public returns (uint256) {
-  SAFE storage safe = safes[index];
-  uint256 debtIssued = safe.debtIssued;
-  return debtIssued;
-}
-
- function computeDebtLimit(uint256 SafeId, address _oracle) internal returns (uint256){
+ function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    //TODO: check safeID exists;
-   uint256 collateral = safes[SafeId].collateral; //Amount of RBTC Collateral in SAFE
+   uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
+   uint256 currentBX = Orc.peekBX();
+   // uint256 currentBSMA = 24000;
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
-   uint256 currentDebtLimit = (collateral * currentBSMA) / currentCollateralRatio * 10000; // maximum amount of xBTC that can be minted by a particular safe given current collateral
+   uint256 currentDebtLimit = ((_collateral * currentBSMA ) / currentBX) ; // maximum amount of xBTC that can be minted by a particular safe given current collateral
    return currentDebtLimit;
  }
 
@@ -100,33 +118,30 @@ function getSafeDebt(uint256 index) public returns (uint256) {
 
  //deposit RBTC collateral in safe
  //use existing safeID or make new safe with lastSAFEID+1
- function depositCollateral(uint256 SafeId) public payable {
+ function depositCollateral() public payable {
     require(msg.value>=dust, 'safeengine/non-dusty-collateral-required');
     // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     // SAFE storage safe = safes[SafeID]; // modularized for clarity
-    safes[SafeId].collateral = (safes[SafeId].collateral) + msg.value;
-    sad
+    collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
   }
 
-  function takeDebt(uint256 amount, uint256 SafeId) public {
-    require(safes[SafeId].UserAddress==msg.sender, 'safeengine/safe-not-authorised'); // SAFE only accessible by creator
+  function takeDebt(uint256 amount) public {
     //collateral sufficiency check
     // SAFE storage safe = safes[SafeID];
-    uint256 debtLimit = computeDebtLimit(SafeId, Oracle);
-    uint256 issuedDebt = safes[SafeId].debtIssued;
+    uint256 debtLimit = computeDebtLimit(Oracle);
+    uint256 issuedDebt = debtIssued[msg.sender];
     uint256 availableDebt = debtLimit - issuedDebt;
     require(availableDebt >= amount, "safeengine/insufficient-collateral-to-mint-stables");
     coin = CoinLike(Coin);
-    safes[SafeId].debtIssued = (safes[SafeId].debtIssued + amount);
+    debtIssued[msg.sender] = (debtIssued[msg.sender] + amount);
     coin.mint(msg.sender, amount);
   }
 
-  function returnDebt(uint256 amount, uint256 SafeId) public {
-    require(safes[SafeId].UserAddress==msg.sender, 'safeengine/safe-not-authorised');
-    uint256 issuedDebt = safes[SafeId].debtIssued;
+  function returnDebt(uint256 amount) public {
+    uint256 issuedDebt = debtIssued[msg.sender];
     require(issuedDebt >= amount, "safeengine/exceeds-debt-amount");
     coin = CoinLike(Coin);
-    safes[SafeId].debtIssued = (safes[SafeId].debtIssued - amount);
+    debtIssued[msg.sender] = (debtIssued[msg.sender] - amount);
     coin.burn(msg.sender, amount);
   }
 
@@ -139,12 +154,12 @@ function getSafeDebt(uint256 index) public returns (uint256) {
     sendRBTC(msg.sender, totalRedemptionAmount);
   }
 
-  function removeCollateral(uint256 SafeID, uint256 amount) public payable {
+  function removeCollateral(uint256 amount) public payable {
      require(amount>=dust, 'safeengine/non-dusty-collateral-required');
      // TODO: check SAFEID exists.
-     uint256 collateral = safes[SafeID].collateral; //Amount of RBTC Collateral in SAFE
-     require(amount<=collateral, 'safeengine/amount-exceeds-deposits');
-     safes[SafeID].collateral = (safes[SafeID].collateral) - amount;
+     uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
+     require(amount<=_collateral, 'safeengine/amount-exceeds-deposits');
+     collateral[msg.sender] = (collateral[msg.sender]) - amount;
      sendRBTC(msg.sender, amount);
    }
 }
