@@ -71,7 +71,8 @@
       "name": "depositCollateral",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -120,7 +121,8 @@
       "name": "redeemCoins",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -138,7 +140,8 @@
       "name": "removeCollateral",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.6.7+commit.b8d736ae\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"ORC\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"STABLE\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"DUST\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"SafeId\",\"type\":\"uint256\"}],\"name\":\"depositCollateral\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"getSafeCollateral\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"getSafeDebt\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"redeemCoins\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"SafeID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"removeCollateral\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"SafeId\",\"type\":\"uint256\"}],\"name\":\"returnDebt\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"SafeId\",\"type\":\"uint256\"}],\"name\":\"takeDebt\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"project:/contracts/safeengine.sol\":\"SafeTracker\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/safeengine.sol\":{\"keccak256\":\"0xe9fc4f80a337486d2aad0092fc700b466bcd08cec8da4eb09bc5c35c065a25d3\",\"urls\":[\"bzz-raw://9f08f378ffafc94d88de91bfca3b3714729e3bbf1a92da58c15f19546e519dd4\",\"dweb:/ipfs/QmXdDU1DEBQHgz4jPqRKW4WgzMbxSJTJR9fKCRkcWpcEwx\"]}},\"version\":1}",
@@ -17175,9 +17178,17 @@
     "name": "solc",
     "version": "0.6.7+commit.b8d736ae.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0x3aDBC248888A046C31C870684A543c74809a74b7",
+      "transactionHash": "0xdd7eda38bcbd3568cb3eb6082f46aa9f5b47e5057d1b01ff858d8edb761ddd74"
+    }
+  },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-27T12:18:36.497Z",
+  "updatedAt": "2021-11-27T15:09:05.579Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {}
   },

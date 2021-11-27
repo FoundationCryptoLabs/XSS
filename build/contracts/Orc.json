@@ -4638,7 +4638,8 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-27T12:18:36.485Z",
+  "updatedAt": "2021-11-27T15:09:05.591Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {
       "addAuthorization(address)": {
