@@ -151,12 +151,8 @@ contract Coin {
     * @param usr The address that will have its coins burned
     * @param amount The amount of coins to burn
     */
-    function burn(address usr, uint256 amount) external {
+    function burn(address usr, uint256 amount) external isAuthorized {
         require(balanceOf[usr] >= amount, "Coin/insufficient-balance");
-        if (usr != msg.sender && allowance[usr][msg.sender] != uint256(-1)) {
-            require(allowance[usr][msg.sender] >= amount, "Coin/insufficient-allowance");
-            allowance[usr][msg.sender] = subtract(allowance[usr][msg.sender], amount);
-        }
         balanceOf[usr] = subtract(balanceOf[usr], amount);
         totalSupply    = subtract(totalSupply, amount);
         emit Transfer(usr, address(0), amount);

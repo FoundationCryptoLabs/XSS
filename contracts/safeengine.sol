@@ -85,11 +85,22 @@ modifier isAuthorized {
     _;
 }
 
+// math
+function add(uint x, uint y) internal pure returns (uint z) {
+    require((z = x + y) >= x);
+}
+function sub(uint x, uint y) internal pure returns (uint z) {
+    require((z = x - y) <= x);
+}
+function mul(uint x, uint y) internal pure returns (uint z) {
+    require(y == 0 || (z = x * y) / y == x);
+}
+
 function setCoin(address STABLE) external isAuthorized {
   Coin = STABLE;
 }
 
- function computeDebtLimit(address _oracle) internal returns (uint256){
+function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    //TODO: check safeID exists;
    uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
@@ -97,16 +108,17 @@ function setCoin(address STABLE) external isAuthorized {
    uint256 currentBX = Orc.peekBX();
    // uint256 currentBSMA = 24000;
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
-   uint256 currentDebtLimit = ((_collateral * currentBSMA ) / currentBX) ; // maximum amount of xBTC that can be minted by a particular safe given current collateral
+   // uint256 currentDebtLimit = ((_collateral * currentBSMA ) / currentBX) ; // maximum amount of xBTC that can be minted by a particular safe given current collateral
+   uint256 currentDebtLimit = _collateral * currentCollateralRatio; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
    return currentDebtLimit;
  }
 
  function computeRedeemPrice(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    //TODO: check safeID exists;
-   uint256 currentSMA = Orc.peekBX(); //BTC-USD exchange rate
+   uint256 currentBX = Orc.peekBX(); //BTC-USD exchange rate
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
-   uint256 currentRedeemPrice = (currentSMA/currentBSMA)*1000000; //10e6 multiplier to preserve precision of fraction
+   uint256 currentRedeemPrice = mul(currentBSMA,1000000)/currentBX; //10e3 multiplier to preserve precision of fraction.
    return currentRedeemPrice;
  }
 
@@ -149,7 +161,7 @@ function setCoin(address STABLE) external isAuthorized {
     coin = CoinLike(Coin);
     require(coin.balanceOf(msg.sender)>=amount, "safeengine/exceeds-balance");
     uint256 redemptionRatePerCoin = computeRedeemPrice(Oracle);
-    uint256 totalRedemptionAmount = (redemptionRatePerCoin * amount)/1000000;
+    uint256 totalRedemptionAmount = mul(redemptionRatePerCoin, amount)/1000000;
     coin.burn(msg.sender, amount);
     sendRBTC(msg.sender, totalRedemptionAmount);
   }

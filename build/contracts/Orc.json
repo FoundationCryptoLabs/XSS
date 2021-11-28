@@ -4639,14 +4639,66 @@
   },
   "networks": {
     "5777": {
-      "events": {},
+      "events": {
+        "0x599a298163e1678bb1c676052a8930bf0b8a1261ed6e01b8a2391e55f7000102": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "AddAuthorization",
+          "type": "event"
+        },
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "src",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "guy",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event"
+        },
+        "0x8834a87e641e9716be4f34527af5d23e11624f1ddeefede6ad75a9acfc31b903": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "RemoveAuthorization",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0x87ad8BB8d6723596F89F7C2A73609483C2Fa109F",
-      "transactionHash": "0x7ed33449cc8a390f73855e91fd49f4f72545cbb922e6c1f12131913e394401fd"
+      "address": "0x7B9DE95870c64c7b521Fa628f6b45aa2e6497e8c",
+      "transactionHash": "0x8f30fd14ad372e8e4ccf11b203413a6fc80b5b8abbc07f3d6463f8729d65c893"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-27T16:54:24.612Z",
+  "updatedAt": "2021-11-27T20:49:50.025Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {

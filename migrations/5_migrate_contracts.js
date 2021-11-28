@@ -6,7 +6,7 @@ const Oracle = artifacts.require("Orc");
 module.exports = function (deployer) {
   // _CoinAdd = deployer.deploy(Coin, "Zero Volatility BTC","xBTC", "5777");
   // _OracleAdd = deployer.deploy(Oracle);
-  _Oracle ="0x87ad8BB8d6723596F89F7C2A73609483C2Fa109F";
-  _Coin ="0x597a0F47572a359410883A58eb001aca990226ec";
+  _Oracle ="0x6F86A8ED6576e64DF87E1C52923967e26880a8dC";
+  _Coin ="0x67ead23FCa16bDC4321d00b4504BfbA3AcE22A93";
   _SafeAdd = deployer.deploy(SafeTracker, _Oracle, 10000);
 };

@@ -30,7 +30,7 @@ gasPriceTestnet = 10000
 // TODO: CHECK TESTNET GAS PRICE
 
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-var mnemonic = process.env["MNEMONIC"]
+var mnemonic = process.env["MNEMONIC2"]
 
 module.exports = {
   /**
