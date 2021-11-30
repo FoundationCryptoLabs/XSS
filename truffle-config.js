@@ -1,36 +1,37 @@
-/**
- * Use this file to configure your truffle project. It's seeded with some
- * common settings for different networks and features like migrations,
- * compilation and testing. Uncomment the ones you need or modify
- * them to suit your project as necessary.
- *
- * More information about configuration can be found at:
- *
- * trufflesuite.com/docs/advanced/configuration
- *
- * To deploy via Infura you'll need a wallet provider (like @truffle/hdwallet-provider)
- * to sign your transactions before they're sent to a remote public node. Infura accounts
- * are available for free at: infura.io/register.
- *
- * You'll also need a mnemonic - the twelve word phrase the wallet uses to generate
- * public/private key pairs. If you're publishing your code to GitHub make sure you load this
- * phrase from a file you've .gitignored so it doesn't accidentally become public.
- *
- */
-
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
+// See <http://truffleframework.com/docs/advanced/configuration>
+// to customize your Truffle configuration!
 const fs = require('fs');
-var HDWalletProvider = require('@truffle/hdwallet-provider')
-//const HDWalletProvider = require("@truffle/hdwallet-provider");
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 
-var publicTestnetNode = 'https://public-node.testnet.rsk.co/'
-gasPriceTestnet = 10000
+var mnemonic = process.env["MNEMONIC3"];
 
-// TODO: CHECK TESTNET GAS PRICE
+// const mnemonic = "tiger raise volcano digital gloom idle hurt planet blur earn blanket motor"
+//Update gas price Testnet
+/* Run this first, to use the result in truffle-config:
+  curl https://public-node.testnet.rsk.co/ -X POST -H "Content-Type: application/json" \
+    --data '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false],"id":1}' \
+    > .minimum-gas-price-testnet.json
+*/
+const gasPriceTestnetRaw = fs.readFileSync(".minimum-gas-price-testnet.json").toString().trim();
+const minimumGasPriceTestnet = parseInt(JSON.parse(gasPriceTestnetRaw).result.minimumGasPrice, 16);
+if (typeof minimumGasPriceTestnet !== 'number' || isNaN(minimumGasPriceTestnet)) {
+  throw new Error('unable to retrieve network gas price from .gas-price-testnet.json');
+}
+console.log("Minimum gas price Testnet: " + minimumGasPriceTestnet);
 
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
-var mnemonic = process.env["MNEMONIC2"]
+//Update gas price Mainnet
+/* Run this first, to use the result in truffle-config:
+  curl https://public-node.rsk.co/ -X POST -H "Content-Type: application/json" \
+    --data '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false],"id":1}' \
+    > .minimum-gas-price-mainnet.json
+*/
+const gasPriceMainnetRaw = fs.readFileSync(".minimum-gas-price-mainnet.json").toString().trim();
+const minimumGasPriceMainnet = parseInt(JSON.parse(gasPriceMainnetRaw).result.minimumGasPrice, 16);
+if (typeof minimumGasPriceMainnet !== 'number' || isNaN(minimumGasPriceMainnet)) {
+  throw new Error('unable to retrieve network gas price from .gas-price-mainnet.json');
+}
+console.log("Minimum gas price Mainnet: " + minimumGasPriceMainnet);
+
 
 module.exports = {
   /**
@@ -44,56 +45,25 @@ module.exports = {
    */
 
   networks: {
-    // Useful for testing. The `development` name is special - truffle uses it by default
-    // if it's defined here and no other network is specified at the command line.
-    // You should run a client (like ganache-cli, geth or parity) in a separate terminal
-    // tab if you use this network and you must also set the `host`, `port` and `network_id`
-    // options below to some value.
-    //
-    dev: {
-      host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard Ethereum port (default: none)
-      network_id: "5777",       // Any network (default: none)
+    develop: {
+      port: 8545
     },
-
-    rskTestnet: {
-      provider: () => new HDWalletProvider(mnemonic, publicTestnetNode),
-      network_id: 31,
-      gasPrice: Math.floor(gasPriceTestnet * 1.1),
-      from: '0xA66748Aa582a81fACFA9De73469eF217Bf839f4E',
+    mainnet: {
+      provider: () => new HDWalletProvider(mnemonic, 'https://public-node.rsk.co', 0, 1, true, "m/44'/137'/0'/0/"),
+      network_id: 30,
+      gasPrice: Math.floor(minimumGasPriceMainnet * 1.02),
       networkCheckTimeout: 1e9
+    },
+    testnet: {
+      provider: () => new HDWalletProvider(mnemonic, 'https://testnet.sovryn.app/rpc'), //, "m/44'/37310'/0'/0/"),
+      network_id: 31,
+      gasPrice: Math.floor(minimumGasPriceTestnet * 10),
+      networkCheckTimeout: 1e9,
     }
-    // Another network with more advanced options...
-    // advanced: {
-    // port: 8777,             // Custom port
-    // network_id: 1342,       // Custom network
-    // gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
-    // gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
-    // from: <address>,        // Account to send txs from (default: accounts[0])
-    // websocket: true        // Enable EventEmitter interface for web3 (default: false)
-    // },
-    // Useful for deploying to a public network.
-    // NB: It's important to wrap the provider as a function.
-    // ropsten: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/YOUR-PROJECT-ID`),
-    // network_id: 3,       // Ropsten's id
-    // gas: 5500000,        // Ropsten has a lower block limit than mainnet
-    // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-    // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
-    // Useful for private networks
-    // private: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
-    // network_id: 2111,   // This network is yours, in the cloud.
-    // production: true    // Treats this network as if it was a public net. (default: false)
-    // }
   },
 
   // Set default mocha options here, use special reporters etc.
-  mocha: {
-    // timeout: 100000
-  },
+  mocha: {  },
 
   // Configure your compilers
   compilers: {
@@ -108,26 +78,5 @@ module.exports = {
       //  evmVersion: "byzantium"
       // }
     }
-  },
-
-  // Truffle DB is currently disabled by default; to enable it, change enabled:
-  // false to enabled: true. The default storage location can also be
-  // overridden by specifying the adapter settings, as shown in the commented code below.
-  //
-  // NOTE: It is not possible to migrate your contracts to truffle DB and you should
-  // make a backup of your artifacts to a safe location before enabling this feature.
-  //
-  // After you backed up your artifacts you can utilize db by running migrate as follows:
-  // $ truffle migrate --reset --compile-all
-  //
-  // db: {
-    // enabled: false,
-    // host: "127.0.0.1",
-    // adapter: {
-    //   name: "sqlite",
-    //   settings: {
-    //     directory: ".db"
-    //   }
-    // }
-  // }
-};
+  }
+}

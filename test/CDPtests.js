@@ -5,10 +5,10 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-//_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
+_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
 _Coin ="0x0eD122216A1889f767060F9311aEbB083860F58a";
 
-_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
+//_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 
 
 contract("Coin", (accounts) => {
