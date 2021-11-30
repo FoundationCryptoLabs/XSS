@@ -1,4 +1,4 @@
-const SafeTracker = artifacts.require("SafeTracker");
+const SafeTracker = artifacts.require("CDPTracker");
 const Coin = artifacts.require("Coin");
 const Oracle = artifacts.require("Orc");
 

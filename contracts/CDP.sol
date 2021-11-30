@@ -40,7 +40,7 @@ contract OracleLike{
   function peekBX() external returns(uint256){}
 }
 
-contract SafeTracker {
+contract CDPTracker {
 
 mapping (address=>uint256) public collateral; // collateral deposited by UserAddress
 mapping (address=>uint256) public debtIssued; // debt issued by UserAddress
@@ -131,7 +131,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
  //deposit RBTC collateral in safe
  //use existing safeID or make new safe with lastSAFEID+1
  function depositCollateral() public payable {
-    require(msg.value>=dust, 'safeengine/non-dusty-collateral-required');
+    require(msg.value>=dust, 'CDPTracker/non-dusty-collateral-required');
     // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     // SAFE storage safe = safes[SafeID]; // modularized for clarity
     collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
@@ -143,7 +143,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     uint256 debtLimit = computeDebtLimit(Oracle);
     uint256 issuedDebt = debtIssued[msg.sender];
     uint256 availableDebt = debtLimit - issuedDebt;
-    require(availableDebt >= amount, "safeengine/insufficient-collateral-to-mint-stables");
+    require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables");
     coin = CoinLike(Coin);
     debtIssued[msg.sender] = (debtIssued[msg.sender] + amount);
     coin.mint(msg.sender, amount);
@@ -151,7 +151,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
   function returnDebt(uint256 amount) public {
     uint256 issuedDebt = debtIssued[msg.sender];
-    require(issuedDebt >= amount, "safeengine/exceeds-debt-amount");
+    require(issuedDebt >= amount, "CDPTracker/exceeds-debt-amount");
     coin = CoinLike(Coin);
     debtIssued[msg.sender] = (debtIssued[msg.sender] - amount);
     coin.burn(msg.sender, amount);
@@ -159,7 +159,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
   function redeemCoins(uint256 amount) public payable {
     coin = CoinLike(Coin);
-    require(coin.balanceOf(msg.sender)>=amount, "safeengine/exceeds-balance");
+    require(coin.balanceOf(msg.sender)>=amount, "CDPTracker/exceeds-balance");
     uint256 redemptionRatePerCoin = computeRedeemPrice(Oracle);
     uint256 totalRedemptionAmount = mul(redemptionRatePerCoin, amount)/1000000;
     coin.burn(msg.sender, amount);
@@ -167,10 +167,11 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
   }
 
   function removeCollateral(uint256 amount) public payable {
-     require(amount>=dust, 'safeengine/non-dusty-collateral-required');
+     require(amount>=dust, 'CDPTracker/non-dusty-collateral-required');
      // TODO: check SAFEID exists.
      uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
-     require(amount<=_collateral, 'safeengine/amount-exceeds-deposits');
+     require(amount<=_collateral, 'CDPTracker/amount-exceeds-deposits');
+     require(issuedDebt==0, 'CDPTracker/debt-not-repaid');
      collateral[msg.sender] = (collateral[msg.sender]) - amount;
      sendRBTC(msg.sender, amount);
    }
