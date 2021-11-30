@@ -171,6 +171,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
      // TODO: check SAFEID exists.
      uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
      require(amount<=_collateral, 'CDPTracker/amount-exceeds-deposits');
+     uint256 issuedDebt = debtIssued[msg.sender];
      require(issuedDebt==0, 'CDPTracker/debt-not-repaid');
      collateral[msg.sender] = (collateral[msg.sender]) - amount;
      sendRBTC(msg.sender, amount);
