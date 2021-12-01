@@ -59,6 +59,10 @@ module.exports = {
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 10),
       networkCheckTimeout: 1e9,
+      timeoutBlocks: 100,
+      // Higher polling interval to check for blocks less frequently
+      // during deployment
+      deploymentPollingInterval: 15e3,
     }
   },
 
