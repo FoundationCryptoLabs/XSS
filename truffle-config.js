@@ -59,7 +59,7 @@ module.exports = {
     testnet: {
       provider: () => new HDWalletProvider({
         mnemonic: {
-          phrase: testnetSeedPhrase,
+          phrase: mnemonic,
         },
         providerOrUrl: 'https://public-node.testnet.rsk.co/',
         derivationPath: "m/44'/37310'/0'/0/",
