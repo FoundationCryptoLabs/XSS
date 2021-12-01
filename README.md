@@ -39,6 +39,6 @@ Use mnemonic for address with sufficient testRBTC for step (2) above.
 
 Contracts are deployed on the testnet on following addresses. You can also interact directly with the contract functions to test them (using rskexplorer UI or any other software). Basic tests of ERC20 functionality/authorizedAccounts functionality are excluded for simplicity in this repo.
 
-CDPTracker: 0x40dD85797b9205e9A7124f32cbc49AB4f0DF66F3
-Coin: 0x0eD122216A1889f767060F9311aEbB083860F58a
+CDPTracker: https://explorer.testnet.rsk.co/address/0xc4aed98e77fcd523ee6506d18efb39963029c873 0x40dD85797b9205e9A7124f32cbc49AB4f0DF66F3
+Coin: https://explorer.testnet.rsk.co/address/0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0
 Oracle: 0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7
