@@ -40,7 +40,7 @@ it("Deposit 0.002 RBTC, check collateral balance [[depositCollateral]]", async f
       });
 
 // Test opening a CDP position by depositing Collateral and parially withdrawing collateral; + system accounting checks.
-it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 1 RBTC [[removeCollateral]]", async function () {
+it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 0.001 RBTC [[removeCollateral]]", async function () {
     const safe_ = await CDPtracker.new(_Oracle, 10000);
     await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.010", "ether")});
     await safe_.removeCollateral(web3.utils.toWei("0.009", "ether"));
