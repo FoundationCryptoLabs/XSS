@@ -24,16 +24,17 @@ contract("CDPtracker", (accounts) => {
       assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.001", "ether"));
   });
 
+  
   // Test take out xBTC debt, transfer to another user, who redeems it at current redemption rate ($20000 by default)
   // Note redemption can be carried out by any user that holds the xBTC, whereas CDP functions (takedebt, returndebt, removeCollateral)
   // can only be performed by the creator of the CDP.
-  it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, transfer to accounts[1], redeem for eth [[redeemCoins]]", async function () {
-      const safe_ = await CDPtracker.at("0xc4aed98e77fcd523ee6506d18efb39963029c873");
+   it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, transfer to accounts[1], redeem for eth [[redeemCoins]]", async function () {
+      const safe_ = await CDPtracker.new(_Oracle, 10000);
       await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.0125", "ether")});
       //add safe to coin
       //const coin_ = Coin.at("0x597a0F47572a359410883A58eb001aca990226ec");
       console.log(safe_.address);
-      const coin_ = await Coin.at("0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0");
+      const coin_ = await Coin.new("XBTC", "XBTC", "5777");
       await coin_.addAuthorization(safe_.address);
       await safe_.setCoin(coin_.address);
       await safe_.takeDebt(web3.utils.toWei("0.010", "ether"));
@@ -45,5 +46,18 @@ contract("CDPtracker", (accounts) => {
   });
 
   // Test attempted removal of collateral while debt is pending - should FAIL.
+   it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, attempt to withdraw 0.0125 btc, FAILS [[expected error: CDPTracker/debt-not-repaid]]", async function () {
+        const safe_ = await CDPtracker.new(_Oracle, 10000);
+        await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.0125", "ether")});
+        // add safe to coin
+        // const coin_ = Coin.at("0x597a0F47572a359410883A58eb001aca990226ec");
+        console.log(safe_.address);
+        const coin_ = await Coin.new("XBTC", "XBTC", "5777");
+        await coin_.addAuthorization(safe_.address);
+        await safe_.setCoin(coin_.address);
+        await safe_.takeDebt(web3.utils.toWei("0.010", "ether"));
+        // assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.010", "ether"));
+        await safe_.removeCollateral(web3.utils.toWei("0.009", "ether")); // FAILS
+      });
 
 });
