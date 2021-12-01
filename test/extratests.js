@@ -47,20 +47,6 @@ it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 1 RBTC 
     assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.001", "ether"));
 });
 
-// Test Debt issuance based on the rules of the protocol
-it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, verify debtIssued [[takeDebt]]", async function () {
-    const safe_ = await CDPtracker.new(_Oracle, 10000);
-    await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.0125", "ether")});
-    //add safe to coin
-    //const coin_ = Coin.at("0x597a0F47572a359410883A58eb001aca990226ec");
-    console.log(safe_.address);
-    const coin_ = await Coin.new("XBTC", "XBTC", "5777");
-    await coin_.addAuthorization(safe_.address);
-    await safe_.setCoin(coin_.address);
-    await safe_.takeDebt(web3.utils.toWei("0.010", "ether"));
-    assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.010", "ether"));
-  });
-
   it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, attempt to withdraw 0.0125 btc, FAILS [[expected error: CDPTracker/debt-not-repaid]]", async function () {
         const safe_ = await CDPtracker.new(_Oracle, 10000);
         await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.0125", "ether")});

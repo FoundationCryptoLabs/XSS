@@ -3,9 +3,9 @@
 const fs = require('fs');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
-var mnemonic = process.env["MNEMONIC3"];
+const mnemonic = process.env["MNEMONIC"];
 
-// const mnemonic = "tiger raise volcano digital gloom idle hurt planet blur earn blanket motor"
+
 //Update gas price Testnet
 /* Run this first, to use the result in truffle-config:
   curl https://public-node.testnet.rsk.co/ -X POST -H "Content-Type: application/json" \
@@ -55,14 +55,11 @@ module.exports = {
       networkCheckTimeout: 1e9
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic, 'http://172.31.9.204:4444'), //, "m/44'/37310'/0'/0/"),
+      provider: () => new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co', 0, 10, true, "m/44'/37310'/0'/0/"),
       network_id: 31,
-      gasPrice: Math.floor(minimumGasPriceTestnet * 10),
-      networkCheckTimeout: 1e9,
-      timeoutBlocks: 100,
-      // Higher polling interval to check for blocks less frequently
-      // during deployment
-      deploymentPollingInterval: 15e3,
+      gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
+      networkCheckTimeout: 1e9
+      from:
     }
   },
 
