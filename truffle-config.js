@@ -57,10 +57,21 @@ module.exports = {
       networkCheckTimeout: 1e9
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic, 'https://testnet.sovryn.app/rpc'), //, "m/44'/37310'/0'/0/"),
+      provider: () => new HDWalletProvider({
+        mnemonic: {
+          phrase: testnetSeedPhrase,
+        },
+        providerOrUrl: 'https://public-node.testnet.rsk.co/',
+        derivationPath: "m/44'/37310'/0'/0/",
+        // Higher polling interval to check for blocks less frequently
+        pollingInterval: 15e3,
+      }), // 'https://testnet.sovryn.app/rpc'), // "m/44'/37310'/0'/0/"),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 10),
       networkCheckTimeout: 1e9,
+      // Higher polling interval to check for blocks less frequently
+      // during deployment
+      deploymentPollingInterval: 15e3
     }
   },
 
