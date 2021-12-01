@@ -102,7 +102,6 @@ function setCoin(address STABLE) external isAuthorized {
 
 function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
-   //TODO: check safeID exists;
    uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentBX = Orc.peekBX();
@@ -115,7 +114,6 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
  function computeRedeemPrice(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
-   //TODO: check safeID exists;
    uint256 currentBX = Orc.peekBX(); //BTC-USD exchange rate
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentRedeemPrice = mul(currentBSMA,1000000)/currentBX; //10e3 multiplier to preserve precision of fraction.
@@ -132,7 +130,6 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
  //use existing safeID or make new safe with lastSAFEID+1
  function depositCollateral() public payable {
     require(msg.value>=dust, 'CDPTracker/non-dusty-collateral-required');
-    // TODO: check SAFEID exists, or create new one via getLastSafeID function.
     // SAFE storage safe = safes[SafeID]; // modularized for clarity
     collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
   }
@@ -168,7 +165,6 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
   function removeCollateral(uint256 amount) public payable {
      require(amount>=dust, 'CDPTracker/non-dusty-collateral-required');
-     // TODO: check SAFEID exists.
      uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
      require(amount<=_collateral, 'CDPTracker/amount-exceeds-deposits');
      uint256 issuedDebt = debtIssued[msg.sender];
