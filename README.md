@@ -1,6 +1,6 @@
 # xBTC Stablecoin System - Core
 
-This repo contains the core contracts of the xBTC stablecoin system (XSS). Please see branch rsk-tests for working codebase and tests.
+This repo contains the core contracts of the xBTC stablecoin system (XSS). Please see branch rsk-test for working codebase and tests.
 
 About
 
