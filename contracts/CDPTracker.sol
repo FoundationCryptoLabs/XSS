@@ -103,11 +103,8 @@ function setCoin(address STABLE) external isAuthorized {
 function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
-   uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
    uint256 currentBX = Orc.peekBX();
-   // uint256 currentBSMA = 24000;
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
-   // uint256 currentDebtLimit = ((_collateral * currentBSMA ) / currentBX) ; // maximum amount of xBTC that can be minted by a particular safe given current collateral
    uint256 currentDebtLimit = _collateral * currentCollateralRatio; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
    return currentDebtLimit;
  }
@@ -127,20 +124,16 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     }
 
  //deposit RBTC collateral in safe
- //use existing safeID or make new safe with lastSAFEID+1
  function depositCollateral() public payable {
     require(msg.value>=dust, 'CDPTracker/non-dusty-collateral-required');
-    // SAFE storage safe = safes[SafeID]; // modularized for clarity
     collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
   }
 
   function takeDebt(uint256 amount) public {
-    //collateral sufficiency check
-    // SAFE storage safe = safes[SafeID];
     uint256 debtLimit = computeDebtLimit(Oracle);
     uint256 issuedDebt = debtIssued[msg.sender];
     uint256 availableDebt = debtLimit - issuedDebt;
-    require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables");
+    require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables"); //collateral sufficiency check
     coin = CoinLike(Coin);
     debtIssued[msg.sender] = (debtIssued[msg.sender] + amount);
     coin.mint(msg.sender, amount);
@@ -165,7 +158,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
   function removeCollateral(uint256 amount) public payable {
      require(amount>=dust, 'CDPTracker/non-dusty-collateral-required');
-     uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
+     uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in CDP
      require(amount<=_collateral, 'CDPTracker/amount-exceeds-deposits');
      uint256 issuedDebt = debtIssued[msg.sender];
      require(issuedDebt==0, 'CDPTracker/debt-not-repaid');
