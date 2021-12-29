@@ -56,8 +56,8 @@ contract TaxCollector {
     event RemoveAuthorization(address account);
 
     // interest per second ^ N
-    function taxSingleOutcome(bytes32 collateralType) public view returns (uint256, int256) {
-      (, uint256 lastAccumulatedRate) = CDP.getAccumulatedRate();
+    function taxSingleOutcome() public view returns (uint256, int256) {
+      uint256 lastAccumulatedRate = CDP.accumulatedRate();
       uint256 newlyAccumulatedRate =
         rmultiply(
           rpow(
@@ -74,45 +74,26 @@ contract TaxCollector {
     function taxSingle(bytes32 collateralType) public returns (uint256) {
           uint256 latestAccumulatedRate;
           if (now <= collateralTypes[collateralType].updateTime) {
-            (, latestAccumulatedRate) = safeEngine.collateralTypes(collateralType);
+            (, latestAccumulatedRate) = CDP.accumulatedRate();
             return latestAccumulatedRate;
           }
-          (, int256 deltaRate) = taxSingleOutcome(collateralType);
+          (, int256 deltaRate) = taxSingleOutcome();
           // Check how much debt has been generated for collateralType
-          (uint256 debtAmount, ) = safeEngine.collateralTypes(collateralType); //globalDebt
+          (uint256 debtAmount, ) = CDP.debtAmount(); //globalDebt
           splitTaxIncome(collateralType, debtAmount, deltaRate);
-          (, latestAccumulatedRate) = safeEngine.collateralTypes(collateralType);
-          collateralTypes[collateralType].updateTime = now;
-          emit CollectTax(collateralType, latestAccumulatedRate, deltaRate);
+          latestAccumulatedRate = CDP.accumulatedRate();
+          updateTime = now;
+          emit CollectTax(latestAccumulatedRate, deltaRate);
           return latestAccumulatedRate;
       }
 
       function splitTaxIncome(bytes32 collateralType, uint256 debtAmount, int256 deltaRate) internal {
-          // Start looping from the latest tax receiver
-          uint256 currentSecondaryReceiver = latestSecondaryReceiver;
-          // While we still haven't gone through the entire tax receiver list
-          while (currentSecondaryReceiver > 0) {
-            // If the current tax receiver should receive SF from collateralType
-            if (secondaryTaxReceivers[collateralType][currentSecondaryReceiver].taxPercentage > 0) {
-              distributeTax(
-                collateralType,
-                secondaryReceiverAccounts[currentSecondaryReceiver],
-                currentSecondaryReceiver,
-                debtAmount,
-                deltaRate
-              );
-            }
-            // Continue looping
-            (, currentSecondaryReceiver) = secondaryReceiverList.prev(currentSecondaryReceiver);
-          }
           // Distribute to primary receiver
           distributeTax(collateralType, primaryTaxReceiver, uint256(-1), debtAmount, deltaRate);
       }
 
       function distributeTax(
-          bytes32 collateralType,
           address receiver,
-          uint256 receiverListPosition,
           uint256 debtAmount,
           int256 deltaRate
       ) internal {
@@ -120,9 +101,8 @@ contract TaxCollector {
           // Check how many coins the receiver has and negate the value
           int256 coinBalance   = -int256(safeEngine.coinBalance(receiver));
           // Compute the % out of SF that should be allocated to the receiver
-          int256 currentTaxCut = (receiver == primaryTaxReceiver) ?
-            multiply(subtract(WHOLE_TAX_CUT, secondaryReceiverAllotedTax[collateralType]), deltaRate) / int256(WHOLE_TAX_CUT) :
-            multiply(int256(secondaryTaxReceivers[collateralType][receiverListPosition].taxPercentage), deltaRate) / int256(WHOLE_TAX_CUT);
+          require(receiver == primaryTaxReceiver, 'reciever not authorized'); //permits only one reciever - i.e. treasury contract.
+          int256 currentTaxCut = multiply(subtract(WHOLE_TAX_CUT, deltaRate) / int256(WHOLE_TAX_CUT) :
           /**
               If SF is negative and a tax receiver doesn't have enough coins to absorb the loss,
               compute a new tax cut that can be absorbed
@@ -144,8 +124,8 @@ contract TaxCollector {
                 )
               )
             ) {
-              CDP.updateAccumulatedRate(collateralType, receiver, currentTaxCut);
-              emit DistributeTax(collateralType, receiver, currentTaxCut);
+              CDP.updateAccumulatedRate(receiver, currentTaxCut);
+              emit DistributeTax(receiver, currentTaxCut);
             }
          }
 

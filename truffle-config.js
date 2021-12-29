@@ -61,7 +61,6 @@ module.exports = {
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9
-      from:
     }
   },
 
