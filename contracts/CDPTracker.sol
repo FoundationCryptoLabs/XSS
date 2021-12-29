@@ -44,10 +44,20 @@ contract CDPTracker {
 
 mapping (address=>uint256) public collateral; // collateral deposited by UserAddress
 mapping (address=>uint256) public debtIssued; // debt issued by UserAddress
+// mapping (address=>uint256) public interestDue; // interest due by UserAddress
+mapping (address=>uint256) public initTime;
+
+
 
 address Oracle;
 address Coin;
 uint256 dust; //Minimum amount of collateral deposited
+uint256 Interest; // Interest rate set by governance. Applies from next calculation after rate is set.
+
+uint256 totalDebt;
+uint256 totalInterest;
+uint256 accumulatedRate;
+
 
 OracleLike Orc;
 CoinLike coin;
@@ -129,17 +139,27 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
   }
 
+  function _calculateInterest(address user) internal returns (uint256){
+
+
+  }
+
   function takeDebt(uint256 amount) public {
     uint256 debtLimit = computeDebtLimit(Oracle);
     uint256 issuedDebt = debtIssued[msg.sender];
+    uint256 due
     uint256 availableDebt = debtLimit - issuedDebt;
     require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables"); //collateral sufficiency check
     coin = CoinLike(Coin);
     debtIssued[msg.sender] = (debtIssued[msg.sender] + amount);
+    totalDebt += amount
+    dS= amount*1000000000/totalDebt // post-money share of debt
+    DebtShare[msg.sender] += dS
     coin.mint(msg.sender, amount);
   }
 
   function returnDebt(uint256 amount) public {
+    debtIssued[msg.sender] = add(debtIssued[msg.sender], mul(debtIssued[msg.sender], accumulatedRate)); // update balance to include interest
     uint256 issuedDebt = debtIssued[msg.sender];
     require(issuedDebt >= amount, "CDPTracker/exceeds-debt-amount");
     coin = CoinLike(Coin);
@@ -165,4 +185,20 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
      collateral[msg.sender] = (collateral[msg.sender]) - amount;
      sendRBTC(msg.sender, amount);
    }
+
+   function updateAccumulatedRate(
+          address surplusDst,
+          int256 rateMultiplier
+      ) external isAuthorized {
+          accumulatedRate        = addition(accumulatedRate, rateMultiplier);
+          int256 deltaSurplus                    = multiply(debtAmount, rateMultiplier);
+          coinBalance[surplusDst]                = addition(coinBalance[surplusDst], deltaSurplus);
+          globalDebt                             = addition(globalDebt, deltaSurplus);
+          emit UpdateAccumulatedRate(
+              surplusDst,
+              rateMultiplier,
+              coinBalance[surplusDst],
+              globalDebt
+          );
+        }
 }

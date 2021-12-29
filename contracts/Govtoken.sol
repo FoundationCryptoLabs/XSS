@@ -17,6 +17,9 @@ pragma solidity ^0.8.0;
 
 // Core ERC20 contract for minting xBTC Stablecoin
 
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20VotesComp.sol";
+
+
 contract EVItoken is ERC20vote {
     // --- Auth ---
     mapping (address => uint256) public authorizedAccounts;

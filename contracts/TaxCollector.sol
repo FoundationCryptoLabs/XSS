@@ -15,14 +15,16 @@ pragma solidity 0.6.7;
 
 import "../shared/LinkedList.sol";
 
-abstract contract SAFEEngineLike {
-    function collateralTypes(bytes32) virtual public view returns (
+abstract contract CDPlike {
+    function collateralData() virtual public view returns (
         uint256 debtAmount,       // [wad]
         uint256 accumulatedRate   // [ray]
     );
     function updateAccumulatedRate(bytes32,address,int256) virtual external;
     function coinBalance(address) virtual public view returns (uint256);
 }
+
+
 
 contract TaxCollector {
     using LinkedList for LinkedList.List;
@@ -56,7 +58,7 @@ contract TaxCollector {
     // --- Events ---
     event AddAuthorization(address account);
     event RemoveAuthorization(address account);
-    event InitializeCollateralType(bytes32 collateralType);
+    // event InitializeCollateralType(bytes32 collateralType);
     event ModifyParameters(
       bytes32 collateralType,
       bytes32 parameter,
@@ -583,7 +585,7 @@ contract TaxCollector {
               )
             )
           ) {
-            safeEngine.updateAccumulatedRate(collateralType, receiver, currentTaxCut);
+            CDP.updateAccumulatedRate(collateralType, receiver, currentTaxCut);
             emit DistributeTax(collateralType, receiver, currentTaxCut);
           }
        }
