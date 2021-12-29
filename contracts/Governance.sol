@@ -1,77 +1,116 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
 
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
+contract MyGovernor is Governor, GovernorSettings, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(ERC20Votes _token, TimelockController _timelock)
+        Governor("MyGovernor")
+        GovernorSettings(2880 /* 1 day */, 8640 /* 3 days */, 500e18) // assuming 30s block time on RSK
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)
+        GovernorTimelockControl(_timelock)
+    {}
 
+    // The following functions are overrides required by Solidity.
 
-mapping (uint256 => string) proposalId;
-mapping (uint256 => string) proposalType;  // map proposal id to proposal type
-mapping (uint256 => uint256) proposalValue;  //Mapping of proposalId to proposalValue
-mapping (address => uint256) numProposals; //
-mapping (uint256 => string) proposalStage; //
-mapping (uint256 => uint256) proposalInit;
-mapping (uint256 => uint256)  proposalVoteBlock;
-mapping (uint256 => uint256) proposalYes;
-mapping (uint256 => uint256) proposalNo;
-mapping (uint256 => mapping(address => bool)) Votecast;
-address CDPaddress;
+    function votingDelay()
+        public
+        view
+        override(IGovernor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.votingDelay();
+    }
 
+    function votingPeriod()
+        public
+        view
+        override(IGovernor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.votingPeriod();
+    }
 
-constructor(address CDP) public {
-  proposalIdcounter = 0;
-  CDPaddress = CDP
-}
+    function quorum(uint256 blockNumber)
+        public
+        view
+        override(IGovernor, GovernorVotesQuorumFraction)
+        returns (uint256)
+    {
+        return super.quorum(blockNumber);
+    }
 
-function propose(uint256 interest, string Type) public {
-  Govtoken = GovTokenLike(Govtoken);
-  require(Govtoken.balanceOf(msg.sender>=100));  //total supply 1 Mil tokens, minimum requirement = 0.01% of total supply
-  proposalIdcounter+=1;
-  numProposals[msg.sender] +=1;
-  require(numProposals[msg.sender]<=100, 'too many proposals from this address'); // to discourage spam
-  ProposalId = proposalIdcounter;
-  proposalStage[ProposalId] = "DD"; // initalise with due diligence state
-  proposalInit[proposalId] = block.number();
-  proposalType[ProposalId] = Type;
-}
+    function getVotes(address account, uint256 blockNumber)
+        public
+        view
+        override(IGovernor, GovernorVotes)
+        returns (uint256)
+    {
+        return super.getVotes(account, blockNumber);
+    }
 
+    function state(uint256 proposalId)
+        public
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (ProposalState)
+    {
+        return super.state(proposalId);
+    }
 
-function initiateVote(uint256 proposal) public returns (bool) {
-  require(proposalStage[proposal] == "DD", 'proposal in incorrect stage');
-  require(block.number() - proposalInitp[proposal] >= 2800, 'minimum DD time not elapsed'); // minimum 1 day in between proposal and initVote
-  proposalStage[ProposalId] = "Voting";
-  proposalVoteBlock[proposal] = block.number()
-}
+    function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
+        public
+        override(Governor, IGovernor)
+        returns (uint256)
+    {
+        return super.propose(targets, values, calldatas, description);
+    }
 
+    function proposalThreshold()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.proposalThreshold();
+    }
 
+    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+        internal
+        override(Governor, GovernorTimelockControl)
+    {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+    }
 
-function vote(uint256 proposal, bool ballot) public returns (bool) {
-  require(proposalStage[proposal] == "Voting", 'proposal not in voting stage');
-  require(Votecast[proposal][msg.sender]!=True, 'vote already cast')
-  Govtoken = GovTokenLike(Govtoken);
-  voteBlock = proposalVoteBlock[proposal];
-  require(block.number()-voteBlock <= 5600, 'voting concluded')
-  num_votes = Govtoken.getPastVotes(msg.sender, voteBlock);
-  if(ballot==True){
-    proposalYes[proposal]+=num_votes
-  }
-  else{
-    proposalNo[proposal]+=num_votes
-  }
-  Votecast[proposal][msg.sender]=True;
-}
+    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+        internal
+        override(Governor, GovernorTimelockControl)
+        returns (uint256)
+    {
+        return super._cancel(targets, values, calldatas, descriptionHash);
+    }
 
+    function _executor()
+        internal
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (address)
+    {
+        return super._executor();
+    }
 
-function executevote(uint256 proposal) public returns (bool){
-  voteBlock = proposalVoteBlock[proposal];
-  require(block.number()-voteBlock > 5600, 'voting not concluded')
-  CDP=CDPlike(CDPaddress);
-  if(proposalType[proposal]=="Interest"){
-    CDP.
-  }
-  if(proposalType[proposal]=="ColRatio"){
-
-  }
-  proposalStage[ProposalId] = "Executed";
-
-
-
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }

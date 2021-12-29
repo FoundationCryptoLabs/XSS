@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity 0.6.7;
+pragma solidity ^0.8.0;
 
 // Core ERC20 contract for minting xBTC Stablecoin
 
-contract EVItoken is ERC20Snapshot {
+contract EVItoken is ERC20vote {
     // --- Auth ---
     mapping (address => uint256) public authorizedAccounts;
     /**
