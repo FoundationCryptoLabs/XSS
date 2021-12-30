@@ -1,5 +1,7 @@
 pragma solidity 0.6.7;
 
+import "./dsmath.sol";
+
 
 contract CoinLike{
   mapping (address => uint256)                      public balanceOf;
@@ -40,7 +42,7 @@ contract OracleLike{
   function peekBX() external returns(uint256){}
 }
 
-contract CDPTracker {
+contract CDPTracker is DSMath {
 
 mapping (address=>uint256) public collateral; // collateral deposited by UserAddress
 mapping (address=>uint256) public debtIssued; // debt issued by UserAddress
@@ -57,7 +59,20 @@ uint256 Interest; // Interest rate set by governance. Applies from next calculat
 uint256 totalDebt;
 uint256 globalDebt;
 uint256 totalInterest;
-int256 accumulatedRate = 100000000015815;
+uint256 accumulatedRate = 100000000015815;
+
+mapping (address => uint256) debtGenerated;
+mapping (address => uint256) LastupdateTime;
+mapping (address => uint256) accumulatedDebt;
+
+function updateDues(address user) public returns(bool) {
+  uint256 timeDifference = sub(now, LastupdateTime[user]);
+  uint256 newDebt = accumulatedDebt[user] * rpow(accumulatedRate, timeDifference);
+  uint256 newTime = now;
+  accumulatedDebt[user] = newDebt;
+  LastupdateTime[user] = newTime;
+
+}
 
 struct SAFE {
       // Total amount of collateral locked in a SAFE
@@ -111,15 +126,42 @@ modifier isAuthorized {
 }
 
 // math
-function add(uint x, uint y) internal pure returns (uint z) {
-    require((z = x + y) >= x);
+function add(uint256 x, int256 y) internal pure returns (uint256 z) {
+    z = x + uint256(y);
+    require(y >= 0 || z <= x, "SAFEEngine/add-uint-int-overflow");
+    require(y <= 0 || z >= x, "SAFEEngine/add-uint-int-underflow");
 }
-function sub(uint x, uint y) internal pure returns (uint z) {
-    require((z = x - y) <= x);
+function add(int256 x, int256 y) internal pure returns (int256 z) {
+    z = x + y;
+    require(y >= 0 || z <= x, "SAFEEngine/add-int-int-overflow");
+    require(y <= 0 || z >= x, "SAFEEngine/add-int-int-underflow");
+}
+function sub(uint256 x, int256 y) internal pure returns (uint256 z) {
+    z = x - uint256(y);
+    require(y <= 0 || z <= x, "SAFEEngine/sub-uint-int-overflow");
+    require(y >= 0 || z >= x, "SAFEEngine/sub-uint-int-underflow");
+}
+function sub(int256 x, int256 y) internal pure returns (int256 z) {
+    z = x - y;
+    require(y <= 0 || z <= x, "SAFEEngine/sub-int-int-overflow");
+    require(y >= 0 || z >= x, "SAFEEngine/sub-int-int-underflow");
+}
+function mul(uint256 x, int256 y) internal pure returns (int256 z) {
+    z = int256(x) * y;
+    require(int256(x) >= 0, "SAFEEngine/mul-uint-int-null-x");
+    require(y == 0 || z / y == int256(x), "SAFEEngine/mul-uint-int-overflow");
 }
 function mul(uint x, uint y) internal pure returns (uint z) {
     require(y == 0 || (z = x * y) / y == x);
 }
+
+function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
+    require((z = x + y) >= x, "SAFEEngine/add-uint-uint-overflow");
+}
+function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
+    require((z = x - y) <= x, "SAFEEngine/sub-uint-uint-underflow");
+}
+
 
 function setCoin(address STABLE) external isAuthorized {
   Coin = STABLE;
@@ -156,7 +198,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    uint256 currentBX = Orc.peekBX(); //BTC-USD exchange rate
    uint256 currentBSMA = Orc.peekBSMA(); //Current USD redemption rate of 1 xBTC
-   uint256 currentRedeemPrice = mul(currentBSMA,1000000)/currentBX; //10e3 multiplier to preserve precision of fraction.
+   uint256 currentRedeemPrice = (currentBSMA*1000000)/currentBX; //10e6 multiplier to preserve precision of fraction.
    return currentRedeemPrice;
  }
 
