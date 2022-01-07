@@ -199,17 +199,23 @@ contract TaxCollector {
         if (now <= updateTime) {
           (, latestAccumulatedRate) = CDP.accumulatedRate();
           return latestAccumulatedRate;
-        (, int256 deltaRate) = taxSingleOutcome();
+
+        (uint256 latestAccumulatedRate, int256 deltaRate) = taxSingleOutcome();  // calculate latest AR, save it
         // Check how much debt has been generated
         (uint256 debtAmount, ) = CDP.globalDebt(); //globalDebt
         // distribute Delta tax to treasury
+        AR.accumulatedRate = latestAccumulatedRate; //update the Structs
+        AR.updateTime = now;
         distributeTax(debtAmount, deltaRate);
-        latestAccumulatedRate = CDP.accumulatedRate();
-        updateTime = now;
+        // updateTime = now;
         emit CollectTax(latestAccumulatedRate, deltaRate);
         return latestAccumulatedRate;
       }
 
+      function giveTax(address user) internal {
+        uint256 surplus = CDP.safes[user].accumulatedDebt - CDP.safes[user].generatedDebt
+        
+      }
       function distributeTax(
           address receiver,
           uint256 debtAmount,

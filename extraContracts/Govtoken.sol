@@ -88,7 +88,8 @@ contract EVItoken is ERC20vote {
     // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
     bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
 
-    // defined with chainId 31 for BRAIN-STABLECOIN
+    // defined with chainId 31 for xBTC-STABLECOIN
+    // defined with name EVI Token and symbol EVI for governing xBTC protocol.
     constructor(
         string memory name_,
         string memory symbol_,
