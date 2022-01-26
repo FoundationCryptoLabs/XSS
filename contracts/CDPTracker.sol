@@ -48,7 +48,7 @@ mapping (address=>uint256) public collateral; // collateral deposited by UserAdd
 mapping (address=>uint256) public debtIssued; // debt issued by UserAddress
 // mapping (address=>uint256) public interestDue; // interest due by UserAddress
 mapping (address=>uint256) public initTime;
-mapping (address => SAFE ) public safes;
+mapping (address => SAFE) public safes;
 
 
 address Oracle;

@@ -37,8 +37,8 @@ contract TaxCollector {
     address public primaryTaxReceiver;
 
     struct AR {
-      uint256 updateTime
-      uint256 accumulatedRate
+      uint256 updateTime;
+      uint256 accumulatedRate; // [ray]
     }
 
     // --- Auth ---
@@ -180,7 +180,7 @@ contract TaxCollector {
             return latestAccumulatedRate;
           }
           (uint256 latestAccumulatedRate, int256 deltaRate) = taxSingleOutcome();
-          // Check how much debt has been generated for collateralType
+          // Check how much debt has been generated
           (uint256 debtAmount, ) = CDP.debtAmount(); //globalDebt
           distributeTax(debtAmount, deltaRate);
           updateTime = now;
@@ -190,8 +190,8 @@ contract TaxCollector {
 
 
       function changeInterest(uint256 newRate) public isAuthorized returns (bool) {
-        uint256 currentAR = updateAR(); // update AR based on old interest till current block
-        globalStabilityFee = newRate ; // update interest rate per second
+        uint256 currentAR = updateAR(); // [ray] update AR based on old interest till current block
+        globalStabilityFee = newRate ; // [ray]  update interest rate per second
       }
 
 
@@ -214,7 +214,7 @@ contract TaxCollector {
 
       function giveTax(address user) internal {
         uint256 surplus = CDP.safes[user].accumulatedDebt - CDP.safes[user].generatedDebt
-        
+
       }
       function distributeTax(
           address receiver,
