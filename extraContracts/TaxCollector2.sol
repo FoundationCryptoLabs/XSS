@@ -21,11 +21,11 @@ abstract contract CDPlike {
     function SafeData(address) virtual public view returns (
       uint256 accumulatedDebt,
       uint256 lastRate
-    )
+    );
     function RateData() virtual public view returns (
       uint256 accumulatedRate,
       uint256 updateTime
-    )
+    );
 }
 
 
@@ -199,7 +199,7 @@ contract TaxCollector {
         if (now <= updateTime) {
           (, latestAccumulatedRate) = CDP.accumulatedRate();
           return latestAccumulatedRate;
-
+        }
         (uint256 latestAccumulatedRate, int256 deltaRate) = taxSingleOutcome();  // calculate latest AR, save it
         // Check how much debt has been generated
         (uint256 debtAmount, ) = CDP.globalDebt(); //globalDebt
@@ -210,10 +210,11 @@ contract TaxCollector {
         // updateTime = now;
         emit CollectTax(latestAccumulatedRate, deltaRate);
         return latestAccumulatedRate;
-      }
+
+    }
 
       function giveTax(address user) internal {
-        uint256 surplus = CDP.safes[user].accumulatedDebt - CDP.safes[user].generatedDebt
+        uint256 surplus = CDP.safes[user].accumulatedDebt - CDP.safes[user].generatedDebt;
 
       }
       function distributeTax(
@@ -226,7 +227,7 @@ contract TaxCollector {
           int256 coinBalance   = -int256(safeEngine.coinBalance(receiver));
           // Compute the % out of SF that should be allocated to the receiver
           require(receiver == primaryTaxReceiver, 'reciever not authorized'); //permits only one reciever - i.e. treasury contract.
-          int256 currentTaxCut = multiply(subtract(WHOLE_TAX_CUT, deltaRate) / int256(WHOLE_TAX_CUT) :
+          int256 currentTaxCut = multiply(subtract(WHOLE_TAX_CUT, deltaRate) / int256(WHOLE_TAX_CUT) )
           /**
               If SF is negative and a tax receiver doesn't have enough coins to absorb the loss,
               compute a new tax cut that can be absorbed
