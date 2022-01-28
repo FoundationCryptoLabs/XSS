@@ -65,12 +65,12 @@ uint256 Interest; // Interest rate set by governance. Applies from next calculat
 uint256 totalDebt;
 uint256 globalDebt;
 uint256 totalInterest;
-uint128 RATE = 100000000; //[ray] per second rate, 5% per day
+uint128 RATE = 10000000000000000000; //[wad] per second rate, 5% per day
 uint256 ACCRATE;
 uint256 AccruedDebt = 100000;
-uint128 globalStabilityFee= 100000564701133626865910626;
+uint128 globalStabilityFee= 101000564701133626865910626;
 uint256 accumulatedRate = 100000564701133626865910626;//100000000015815;
-TaxCollectorLike TC = TaxCollectorLike(0x3ebD2D20693aDcE6664c8eBC0B4ebB7bc625EFc2);
+TaxCollectorLike TC = TaxCollectorLike(0x950fc41BA7Fe437121340955dBaEBe4dE8fb0EB5);
 
 mapping (address => uint256) debtGenerated;
 mapping (address => uint256) LastupdateTime;
@@ -92,16 +92,24 @@ function updateDebt(address user) public returns(uint256) {
   LastupdateTime[user] = newTime;
   return newDebt;
 }
-
-function updateAccumulatedRate() public returns (uint256) {
+function updateAccumulatedRate0() public returns (uint256) {
   uint128 lastAccumulatedRate = RATE;
-  uint64 powertime = 85000;
-  uint256 newrate =rmul(rpow(
-      globalStabilityFee,     // Only one collateral type.
-    powertime
-  ), lastAccumulatedRate);
-  RATE=newrate;
-  return newrate;
+  uint64 powertime = 6; //[wad] replace with time gap since last update
+  uint256 rateupdate = rpow(globalStabilityFee, powertime);
+  uint256 newrate =rmul(    // Only one collateral type.
+     lastAccumulatedRate, rpow(globalStabilityFee, powertime));
+  RATE=uint128(rateupdate);
+  return RATE;
+  }
+
+function updateAccumulatedRate1() public returns (uint256) {
+  uint128 lastAccumulatedRate = RATE;
+  uint64 powertime = 8; //[wad] replace with time gap since last update
+  uint256 rateupdate = rpow(globalStabilityFee, powertime);
+  uint256 newrate =rmul(    // Only one collateral type.
+     lastAccumulatedRate, rpow(globalStabilityFee, powertime));
+  RATE=uint128(rateupdate);
+  return RATE;
   }
 
 function updateDebt2(address user) public returns(uint256) {
@@ -110,9 +118,9 @@ function updateDebt2(address user) public returns(uint256) {
   // uint256 OriginRate = 1000000000;
   uint256 originalrate = originRate[msg.sender];
   // uint256 newrate= TC.updateAR();
-  uint256 newrate = updateAccumulatedRate();
+  uint256 newrate = updateAccumulatedRate1();
   // uint256 newDebt = rmul(debtIssued[user], rpow(accumulatedRate, timeDifference));
-  uint256 newDebt = (newrate/originalrate)*debtIssued[msg.sender];
+  uint256 newDebt = rmul(rdiv(newrate, originalrate), debtIssued[msg.sender]);
   //uint256 newTime = now;
   debtIssued[user] = newDebt;
   // LastupdateTime[user] = newTime;
@@ -277,6 +285,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     // DebtShare[msg.sender] += dS;
     coin.mint(msg.sender, amount);
     LastupdateTime[msg.sender] = now;
+    originRate[msg.sender] = updateAccumulatedRate0();
   }
 
   function returnDebt(uint256 amount) public {

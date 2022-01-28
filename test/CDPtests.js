@@ -5,8 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0xf54E0324d1eC4bFeEE88F092DeAA9B1A94119a73";
-_Coin ="0x0C1E7476A92e86D7D12B549c3640fe6744Bd64c8";
+_Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
+_Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 contract("Oracle", (accounts) => {
   it("peekCollateralRatio, peekBSMA, peekBX", async function () {
@@ -36,6 +36,7 @@ contract("SafeTracker", (accounts) => {
 
   // Test opening a CDP position by depositing Collateral
   it("Deposit 0.02 RBTC, check collateral balance [[depositCollateral]]", async function () {
+      //await web3.eth.sendTransaction({to:accounts[0], from:accounts[1], value:web3.utils.toWei('30', 'ether')});
       const safe_ = await SafeTracker.new(_Oracle, 10000);
       await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.02", "ether")})
       assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.02", "ether"));

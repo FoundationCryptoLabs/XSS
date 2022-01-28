@@ -5,8 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0xf54E0324d1eC4bFeEE88F092DeAA9B1A94119a73";
-_Coin ="0x0C1E7476A92e86D7D12B549c3640fe6744Bd64c8";
+_Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
+_Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 
@@ -61,7 +61,7 @@ it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 1 RBTC 
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     await timeout(5000);
-    const cz = await safe_.taxSingleOutcomeL.call();
+    const cz = await safe_.updateDebt2.call(accounts[0]);
     const cz_number = cz.toString(); //BigInt(cz);
     //assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.10", "ether"));
     assert.equal(cz_number, (web3.utils.toWei("0.11", "ether")).toString());
