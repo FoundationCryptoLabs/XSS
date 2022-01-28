@@ -68,7 +68,7 @@ uint256 totalInterest;
 uint128 RATE = 10000000000000000000; //[wad] per second rate, 5% per day
 uint256 ACCRATE;
 uint256 AccruedDebt = 100000;
-uint128 globalStabilityFee= 101000564701133626865910626;
+uint128 globalStabilityFee= 1000000564701133626865910626;
 uint256 accumulatedRate = 100000564701133626865910626;//100000000015815;
 TaxCollectorLike TC = TaxCollectorLike(0x950fc41BA7Fe437121340955dBaEBe4dE8fb0EB5);
 
@@ -104,7 +104,7 @@ function updateAccumulatedRate0() public returns (uint256) {
 
 function updateAccumulatedRate1() public returns (uint256) {
   uint128 lastAccumulatedRate = RATE;
-  uint64 powertime = 8; //[wad] replace with time gap since last update
+  uint64 powertime = 86406; //[wad] replace with time gap since last update
   uint256 rateupdate = rpow(globalStabilityFee, powertime);
   uint256 newrate =rmul(    // Only one collateral type.
      lastAccumulatedRate, rpow(globalStabilityFee, powertime));
