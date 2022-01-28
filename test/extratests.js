@@ -5,8 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
-_Coin ="0x0eD122216A1889f767060F9311aEbB083860F58a";
+_Oracle ="0xf54E0324d1eC4bFeEE88F092DeAA9B1A94119a73";
+_Coin ="0x0C1E7476A92e86D7D12B549c3640fe6744Bd64c8";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 
@@ -46,6 +46,26 @@ it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 1 RBTC 
     await safe_.removeCollateral(web3.utils.toWei("0.009", "ether"));
     assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.001", "ether"));
 });
+
+  it("Take 0.01 xBTC debt, check interest rate is being accrued", async function() {
+    const safe_ = await CDPtracker.new(_Oracle, 10000);
+    await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("2", "ether")});
+    // add safe to coin
+    // const coin_ = Coin.at("0x597a0F47572a359410883A58eb001aca990226ec");
+    console.log(safe_.address);
+    const coin_ = await Coin.new("XBTC", "XBTC", "5777");
+    await coin_.addAuthorization(safe_.address);
+    await safe_.setCoin(coin_.address);
+    await safe_.takeDebt(web3.utils.toWei("0.1", "ether"));
+    function timeout(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    await timeout(5000);
+    const cz = await safe_.taxSingleOutcomeL.call();
+    const cz_number = cz.toString(); //BigInt(cz);
+    //assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.10", "ether"));
+    assert.equal(cz_number, (web3.utils.toWei("0.11", "ether")).toString());
+  });
 
   it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, attempt to withdraw 0.0125 btc, FAILS [[expected error: CDPTracker/debt-not-repaid]]", async function () {
         const safe_ = await CDPtracker.new(_Oracle, 10000);

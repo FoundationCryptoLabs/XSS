@@ -27,10 +27,10 @@ abstract contract CDPlike {
 
 
 contract TaxCollector is DSMath {
-    uint256 RATE = 100000000015815; // per second rate
+    uint256 RATE = 100000104701133626865910626; //[ray] per second rate, 5% per day
     uint256 ACCRATE;
-    uint256 AccruedDebt;
-    uint256 globalStabilityFee; //current per second interestDue rate
+    uint256 AccruedDebt = 100000;
+    uint256 globalStabilityFee= 100000564701133626865910626; //current per second interestDue rate
     address public primaryTaxReceiver;
     CDPlike CDP;
 
@@ -48,7 +48,8 @@ contract TaxCollector is DSMath {
 
     // interest per second ^ N
     function taxSingleOutcome() internal view returns (uint256, uint256) {
-      (, uint256 lastAccumulatedRate) = CDP.collateralData();
+      // (, uint256 lastAccumulatedRate) = CDP.collateralData();
+      uint256 lastAccumulatedRate = RATE;
       uint256 newlyAccumulatedRate =
         rmul(
           rpow(
@@ -62,26 +63,37 @@ contract TaxCollector is DSMath {
       return (newlyAccumulatedRate, sub1(newlyAccumulatedRate, lastAccumulatedRate));
       }
 
+      function taxSingleOutcomeL() public returns (uint256) {
+        uint256 lastAccumulatedRate = RATE;
+        uint256 newrate =rpow(
+            globalStabilityFee,     // Only one collateral type.
+          85000
+        );
+        RATE=newrate;
+        return newrate;
+        }
+
     function updateAR() public returns (uint256) {
       if (now <= RateAccumulator.updateTime) {
-        (, uint256 latestAccumulatedRate) = CDP.collateralData();
-        return latestAccumulatedRate;
+        //(, uint256 latestAccumulatedRate) = CDP.collateralData();
+        // return latestAccumulatedRate;
       }
-      (uint256 latestAccumulatedRate, uint256 deltaRate) = taxSingleOutcome();  // calculate latest AR, save it
+      uint256 latestAccumulatedRate = taxSingleOutcomeL();  // calculate latest AR, save it
       // Check how much debt has been generated
-      (uint256 debtAmount, ) = CDP.collateralData(); //globalDebt
+      // (uint256 debtAmount, ) = CDP.collateralData(); //globalDebt
       // distribute Delta tax to treasury
       RateAccumulator.accumulatedRate = latestAccumulatedRate; //update the Structs
       RateAccumulator.updateTime = now;
-      uint256 GeneratedDebt = debtAmount;
-      uint256 surplus = AccruedDebt - GeneratedDebt;
-      distributeTax(primaryTaxReceiver, debtAmount, surplus);
-      AccruedDebt -= surplus;
+      // uint256 GeneratedDebt = debtAmount;
+      // uint256 surplus = AccruedDebt - GeneratedDebt;
+      // distributeTax(primaryTaxReceiver, debtAmount, surplus);
+      // AccruedDebt -= surplus;
 
       // updateTime = now;
       // emit CollectTax(latestAccumulatedRate, deltaRate);
       return latestAccumulatedRate;
     }
+
 
       function changeInterest(uint256 newRate) public isAuthorized returns (bool) {
         uint256 currentAR = updateAR(); // [ray] update AR based on old interest till current block

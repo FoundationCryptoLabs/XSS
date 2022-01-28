@@ -40,8 +40,14 @@ contract OracleLike{
   function peekCollateralRatio() external returns(uint256) {}
   function peekBSMA() external returns(uint256){}
   function peekBX() external returns(uint256){}
+
+
 }
 
+contract TaxCollectorLike{
+  function updateAR() public returns (uint256) {}
+  function taxSingleOutcomeL() public returns (uint256) {}
+}
 contract CDPTracker is DSMath {
 
 mapping (address=>uint256) public collateral; // collateral deposited by UserAddress
@@ -59,19 +65,59 @@ uint256 Interest; // Interest rate set by governance. Applies from next calculat
 uint256 totalDebt;
 uint256 globalDebt;
 uint256 totalInterest;
-uint256 accumulatedRate = 100000000015815;
+uint128 RATE = 100000000; //[ray] per second rate, 5% per day
+uint256 ACCRATE;
+uint256 AccruedDebt = 100000;
+uint128 globalStabilityFee= 100000564701133626865910626;
+uint256 accumulatedRate = 100000564701133626865910626;//100000000015815;
+TaxCollectorLike TC = TaxCollectorLike(0x3ebD2D20693aDcE6664c8eBC0B4ebB7bc625EFc2);
 
 mapping (address => uint256) debtGenerated;
 mapping (address => uint256) LastupdateTime;
 mapping (address => uint256) accumulatedDebt;
+mapping (address => uint256) originRate;
 
-function updateDues(address user) public returns(bool) {
-  uint256 timeDifference = sub(now, LastupdateTime[user]);
-  uint256 newDebt = accumulatedDebt[user] * rpow(accumulatedRate, timeDifference);
+function updateDebt(address user) public returns(uint256) {
+  // uint256 timeDifference = sub(now, LastupdateTime[user]);
+  uint256 NewRate = 101000000000;
+  uint256 OriginRate = 1000000000;
+  uint256 originalrate = originRate[msg.sender];
+  uint256 newrate= TC.taxSingleOutcomeL()*10000;
+  // uint256 newDebt = rmul(debtIssued[user], rpow(accumulatedRate, timeDifference));
+  // uint256 newDebt = ((NewRate/OriginRate)*debtIssued[msg.sender])/10000;
+  uint256 newDebt = (newrate/originalrate)*debtIssued[msg.sender]/10000;
+
   uint256 newTime = now;
-  accumulatedDebt[user] = newDebt;
+  debtIssued[user] = newDebt;
   LastupdateTime[user] = newTime;
+  return newDebt;
+}
 
+function updateAccumulatedRate() public returns (uint256) {
+  uint128 lastAccumulatedRate = RATE;
+  uint64 powertime = 85000;
+  uint256 newrate =rmul(rpow(
+      globalStabilityFee,     // Only one collateral type.
+    powertime
+  ), lastAccumulatedRate);
+  RATE=newrate;
+  return newrate;
+  }
+
+function updateDebt2(address user) public returns(uint256) {
+  // uint256 timeDifference = sub(now, LastupdateTime[user]);
+  // uint256 NewRate = 101000000000;
+  // uint256 OriginRate = 1000000000;
+  uint256 originalrate = originRate[msg.sender];
+  // uint256 newrate= TC.updateAR();
+  uint256 newrate = updateAccumulatedRate();
+  // uint256 newDebt = rmul(debtIssued[user], rpow(accumulatedRate, timeDifference));
+  uint256 newDebt = (newrate/originalrate)*debtIssued[msg.sender];
+  //uint256 newTime = now;
+  debtIssued[user] = newDebt;
+  // LastupdateTime[user] = newTime;
+  originRate[msg.sender] = newrate;
+  return newDebt;
 }
 
 struct SAFE {
@@ -225,11 +271,12 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     uint256 availableDebt = debtLimit - issuedDebt;
     require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables"); //collateral sufficiency check
     coin = CoinLike(Coin);
-    debtIssued[msg.sender] = (debtIssued[msg.sender] + amount);
+    debtIssued[msg.sender] = add(debtIssued[msg.sender], amount);
     totalDebt += amount;
     uint256 dS= amount*1000000000/totalDebt; // post-money share of debt
     // DebtShare[msg.sender] += dS;
     coin.mint(msg.sender, amount);
+    LastupdateTime[msg.sender] = now;
   }
 
   function returnDebt(uint256 amount) public {
@@ -237,7 +284,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     uint256 issuedDebt = debtIssued[msg.sender];
     require(issuedDebt >= amount, "CDPTracker/exceeds-debt-amount");
     coin = CoinLike(Coin);
-    debtIssued[msg.sender] = (debtIssued[msg.sender] - amount);
+    debtIssued[msg.sender] = sub(debtIssued[msg.sender], amount);
     coin.burn(msg.sender, amount);
   }
 
