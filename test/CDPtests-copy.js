@@ -5,8 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
-_Coin ="0x0eD122216A1889f767060F9311aEbB083860F58a";
+_Oracle ="0xDEf2acE4F0991a22d0CC6947C2186b25e43b23A5";
+_Coin ="0xd55C40a83fa1C23F40AC86b4a4974577c10cD8C0";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 
@@ -16,13 +16,7 @@ contract("Coin", (accounts) => {
 
 contract("CDPtracker", (accounts) => {
   // Test opening a CDP position by depositing Collateral
-  it("Deposit 0.01 RBTC, Withdraw 0.009 RBTC, verify collateral balance is 0.001 RBTC [[removeCollateral]]", async function () {
-      // const safe_ = await CDPtracker.new(_Oracle, 10000);
-      const safe_ = CDPtracker.at("0xc4aed98e77fcd523ee6506d18efb39963029c873");
-      await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.010", "ether")});
-      await safe_.removeCollateral(web3.utils.toWei("0.009", "ether"));
-      assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.001", "ether"));
-  });
+
 
   // Test take out xBTC debt, transfer to another user, who redeems it at current redemption rate ($20000 by default)
   // Note redemption can be carried out by any user that holds the xBTC, whereas CDP functions (takedebt, returndebt, removeCollateral)
@@ -40,7 +34,7 @@ contract("CDPtracker", (accounts) => {
       // assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.010", "ether"));
       await coin_.transfer(accounts[1], web3.utils.toWei("0.009", "ether"));
       // assert.equal(coin_.balanceOf(accounts[1], web3.utils.toWei("0.09", "ether")));
-      await safe_.redeemCoins(web3.utils.toWei("0.009", "ether"), {from:accounts[1]});
+      // await safe_.redeemCoins(web3.utils.toWei("0.009", "ether"), {from:accounts[1]});
       //assert.equal(coin_.balanceOf(accounts[1]), web3.utils.toWei("1", "ether"));
   });
 

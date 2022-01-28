@@ -5,8 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
-_Coin ="0x0eD122216A1889f767060F9311aEbB083860F58a";
+_Oracle ="0xDEf2acE4F0991a22d0CC6947C2186b25e43b23A5";
+_Coin ="0xd55C40a83fa1C23F40AC86b4a4974577c10cD8C0";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 

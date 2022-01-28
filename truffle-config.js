@@ -45,8 +45,10 @@ module.exports = {
    */
 
   networks: {
-    develop: {
-      port: 8545
+    dev: {
+      host: 'localhost',
+      port: 7545,
+      network_id: 5777
     },
     mainnet: {
       provider: () => new HDWalletProvider(mnemonic, 'https://public-node.rsk.co', 0, 1, true, "m/44'/137'/0'/0/"),
