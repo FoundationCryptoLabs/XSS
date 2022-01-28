@@ -65,10 +65,10 @@ uint256 Interest; // Interest rate set by governance. Applies from next calculat
 uint256 totalDebt;
 uint256 globalDebt;
 uint256 totalInterest;
-uint128 RATE = 10000000000000000000; //[wad] per second rate, 5% per day
+uint256 RATE = 10000000000000000000; //[wad] per second rate, 5% per day
 uint256 ACCRATE;
 uint256 AccruedDebt = 100000;
-uint128 globalStabilityFee= 101000564701133626865910626;
+uint256 globalStabilityFee= 100000564701133626865910626;
 uint256 accumulatedRate = 100000564701133626865910626;//100000000015815;
 TaxCollectorLike TC = TaxCollectorLike(0x950fc41BA7Fe437121340955dBaEBe4dE8fb0EB5);
 
@@ -93,22 +93,24 @@ function updateDebt(address user) public returns(uint256) {
   return newDebt;
 }
 function updateAccumulatedRate0() public returns (uint256) {
-  uint128 lastAccumulatedRate = RATE;
+  uint256 lastAccumulatedRate = RATE;
   uint64 powertime = 6; //[wad] replace with time gap since last update
   uint256 rateupdate = rpow(globalStabilityFee, powertime);
+  uint256 ru2 = (globalStabilityFee/10**27)**powertime;
   uint256 newrate =rmul(    // Only one collateral type.
      lastAccumulatedRate, rpow(globalStabilityFee, powertime));
-  RATE=uint128(rateupdate);
+  RATE=ru2;
   return RATE;
   }
 
 function updateAccumulatedRate1() public returns (uint256) {
-  uint128 lastAccumulatedRate = RATE;
+  uint256 lastAccumulatedRate = RATE;
   uint64 powertime = 8; //[wad] replace with time gap since last update
   uint256 rateupdate = rpow(globalStabilityFee, powertime);
+  uint256 ru2 = (globalStabilityFee/10**27)**powertime;
   uint256 newrate =rmul(    // Only one collateral type.
      lastAccumulatedRate, rpow(globalStabilityFee, powertime));
-  RATE=uint128(rateupdate);
+  RATE=ru2;
   return RATE;
   }
 
@@ -120,7 +122,7 @@ function updateDebt2(address user) public returns(uint256) {
   // uint256 newrate= TC.updateAR();
   uint256 newrate = updateAccumulatedRate1();
   // uint256 newDebt = rmul(debtIssued[user], rpow(accumulatedRate, timeDifference));
-  uint256 newDebt = rmul(rdiv(newrate, originalrate), debtIssued[msg.sender]);
+  uint256 newDebt = rmul((newrate/ originalrate), debtIssued[msg.sender]);
   //uint256 newTime = now;
   debtIssued[user] = newDebt;
   // LastupdateTime[user] = newTime;
