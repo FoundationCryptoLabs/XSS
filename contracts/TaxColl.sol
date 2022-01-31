@@ -20,100 +20,44 @@ abstract contract CDPlike {
         uint256 debtAmount,       // [wad]
         uint256 accumulatedRate   // [ray]
     );
+    function newAR(uint256 newRATE) external {
+    }
+
+    // Function called by TaxCollector Contract
+    function updateGlobalDebt(uint256 newDebt) external {
+    }
+
+    // Function called by TaxCollector Contract
+    function issueSurplus(uint256 amount, address treasury) external {
+      }
     function updateAccumulatedRate(bytes32,address,int256) virtual external;
     function coinBalance(address) virtual public view returns (uint256);
+    uint256 public globalDebt;
+    uint256 public totalSurplus;
+    uint256 public lastAR;
 }
 
 
 
 contract TaxCollector is DSMath {
-    uint256 RATE = 100000104701133626865910626; //[ray] per second rate, 5% per day
-    uint256 ACCRATE;
-    uint256 AccruedDebt = 100000;
+    uint256 RATE = 100000564701133626865910626; //[ray] per second rate, 5% per day
     uint256 globalStabilityFee= 100000564701133626865910626; //current per second interestDue rate
-    address public primaryTaxReceiver;
+    address public Treasury;
     CDPlike CDP;
 
-    constructor(address CDPcontract) public {
+    constructor(address CDPcontract, address TreasuryContract) public {
        CDP = CDPlike(CDPcontract);
+       Treasury = TreasuryContract;
     }
 
     //AR : Rate Accumulator
+    // RATE : Global Stability Fee
     struct AR {
       uint256 updateTime;
-      uint256 accumulatedRate; // [ray]
+      uint128 RATE; // [ray]
     }
 
     AR RateAccumulator;
-
-    // interest per second ^ N
-    function taxSingleOutcome() internal view returns (uint256, uint256) {
-      // (, uint256 lastAccumulatedRate) = CDP.collateralData();
-      uint256 lastAccumulatedRate = RATE;
-      uint256 newlyAccumulatedRate =
-        rmul(
-          rpow(
-              globalStabilityFee,     // Only one collateral type.
-            sub1(
-              now,
-              RateAccumulator.updateTime
-            )
-          ),
-        lastAccumulatedRate);
-      return (newlyAccumulatedRate, sub1(newlyAccumulatedRate, lastAccumulatedRate));
-      }
-
-      function taxSingleOutcomeL() public returns (uint256) {
-        uint256 lastAccumulatedRate = RATE;
-        uint256 newrate =rpow(
-            globalStabilityFee,     // Only one collateral type.
-          85000
-        );
-        RATE=newrate;
-        return newrate;
-        }
-
-    function updateAR() public returns (uint256) {
-      if (now <= RateAccumulator.updateTime) {
-        //(, uint256 latestAccumulatedRate) = CDP.collateralData();
-        // return latestAccumulatedRate;
-      }
-      uint256 latestAccumulatedRate = taxSingleOutcomeL();  // calculate latest AR, save it
-      // Check how much debt has been generated
-      // (uint256 debtAmount, ) = CDP.collateralData(); //globalDebt
-      // distribute Delta tax to treasury
-      RateAccumulator.accumulatedRate = latestAccumulatedRate; //update the Structs
-      RateAccumulator.updateTime = now;
-      // uint256 GeneratedDebt = debtAmount;
-      // uint256 surplus = AccruedDebt - GeneratedDebt;
-      // distributeTax(primaryTaxReceiver, debtAmount, surplus);
-      // AccruedDebt -= surplus;
-
-      // updateTime = now;
-      // emit CollectTax(latestAccumulatedRate, deltaRate);
-      return latestAccumulatedRate;
-    }
-
-
-      function changeInterest(uint256 newRate) public isAuthorized returns (bool) {
-        uint256 currentAR = updateAR(); // [ray] update AR based on old interest till current block
-        globalStabilityFee = newRate ; // [ray]  update interest rate per second
-      }
-
-      function distributeTax(
-          address receiver,
-          uint256 debtAmount,
-          uint256 surplusAmount
-      ) internal {
-          require(CDP.coinBalance(receiver) < 2**255, "TaxCollector/coin-balance-does-not-fit-into-int256");
-          // Check how many coins the receiver has and negate the value
-          // int256 coinBalance   = -int256(CDP.coinBalance(receiver));
-          // add to cumulative ticker of interest issued.
-          // CDP.updateIssuedInterest(receiver, surplusAmount);
-          //transfer Coins to Treasury
-          // Treasury.transfer(receiver, surplusAmount);
-          // emit DistributeTax(receiver, surplusAmount);
-        }
 
     // --- Auth ---
     mapping (address => uint256) public authorizedAccounts;
@@ -140,6 +84,29 @@ contract TaxCollector is DSMath {
         require(authorizedAccounts[msg.sender] == 1, "TaxCollector/account-not-authorized");
         _;
     }
+
+    // interest per second ^ N
+  function updateAccumulatedRate() public returns (uint128) {
+    uint128 lastRate = RateAccumulator.RATE;
+    if (now <= RateAccumulator.updateTime) {
+    uint64 powertime = 86406; // set to 1 day by default. replace with time gap since last update using
+    //uint64 powertime = block.timestamp - INIT
+    uint256 rateupdate = rpow(globalStabilityFee, powertime);
+    uint256 globalDebt = CDP.globalDebt();
+    uint256 globalLastAR = CDP.lastAR();
+    uint256 newDebt = rmul(rdiv(lastRate, globalLastAR), globalDebt); // surplus since last update.
+    RateAccumulator.RATE=uint128(rateupdate);
+    CDP.newAR(rateupdate);
+    CDP.updateGlobalDebt(newDebt);
+    uint256 surplus = newDebt - globalDebt;
+    // surplus is minted at the time of calculation, all funds including interest are burnt when debt is repaid.
+    if(surplus>0){
+      CDP.issueSurplus(surplus, Treasury);
+  }
+    return RateAccumulator.RATE;
+    }
+  }
+
 
     // --- Events ---
     event AddAuthorization(address account);

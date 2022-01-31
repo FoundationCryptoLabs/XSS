@@ -1,6 +1,6 @@
 # xBTC stability fee
 
-xBTC utilises a modified version of the accumulated rates mechanism used in DAI/RAI to calculate current surplus,without needing to keep track of historical balances and interest rates. Since there is only one collateral type in xBTC, direct mappings are used instead of "CollateralType" Structs for each collateral used in RAI.
+xBTC utilises a modified version of the accumulated rates mechanism used in DAI/RAI to calculate current surplus, without needing to keep track of historical balances and interest rates. Since there is only one collateral type in xBTC, direct mappings are used instead of "CollateralType" Structs for each collateral used in RAI.
 
 Since collateral ratio is denominated in BTC, there is no risk of liquidation as long as the loan in paid back within the predetermined time limit. The liquidation ratio of the collateral is set to ~115%, which corresponds to a time limit of approximately 3 years for a loan taken out at an average annual interest of 3%.
 
@@ -13,6 +13,8 @@ The next step is to calculate a user's specific interest dues. To do this, the C
 increases the Vow's surplus by Art*rate_change
 increases the system's total debt (i.e. issued Dai) by Art*rate_change.
 Each individual Vault (represented by an Urn struct in the Vat) stores a "normalized debt" parameter called art. Any time it is needed by the code, the Vault's total debt, including stability fees, can be calculated as art*rate (where rate corresponds to that of the appropriate collateral type). Thus an update to Ilk.rate via Jug.drip(bytes32 ilk) effectively updates the debt for all Vaults collateralized with ilk tokens.
+
+
 
 
 Number Types
