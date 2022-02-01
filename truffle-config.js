@@ -62,7 +62,6 @@ module.exports = {
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
-      from: "0xB0084105778f6B22a55C4828B115b4d26C08f3f2",
     },
     testnet2: {
       provider: () => new HDWalletProvider(mnemonicPhrase, 'http://localhost:4444/'),
