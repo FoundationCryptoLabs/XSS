@@ -56,6 +56,7 @@ module.exports = {
           },
           providerOrUrl: 'http://localhost:4444/',
           pollingInterval: 10e3,
+          derivationPath: "m/44'/37310'/0'/0",
         }),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
