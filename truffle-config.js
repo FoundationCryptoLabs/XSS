@@ -59,7 +59,7 @@ module.exports = {
           // derivationPath: "m/44'/37310'/0'/0",
         }),
       network_id: 31,
-      gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
+      gasPrice: Math.floor(minimumGasPriceTestnet * 5.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
     },
