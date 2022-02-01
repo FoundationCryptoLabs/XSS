@@ -63,7 +63,7 @@ uint256 RATE = 1*10**27; // RAY - base value of AR.
 uint256 public INIT;
 
 uint128 globalStabilityFee= 1000000564701133626865910626; //[ray] per second rate, 5% per day setting for testing.
-TaxCollectorLike TC = TaxCollectorLike(0x950fc41BA7Fe437121340955dBaEBe4dE8fb0EB5);
+TaxCollectorLike TC = TaxCollectorLike(0xd275F1D2fceB349dF85c7DF7ED7572EE8ccdf20f); // RSK testnet address
 
 // mapping (address => uint256) LastupdateTime;
 // mapping (address => uint128) originRate;
@@ -329,7 +329,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
 
 // return xBTC debt
   function returnDebt(uint256 amount) public {
-    uint256 issuedDebt = updateUserDebt2(msg.sender); // update balance to include interest
+    uint256 issuedDebt = updateUserDebt2(msg.sender); // update balance to include interest for 1 day
     require(issuedDebt >= amount, "CDPTracker/exceeds-debt-amount");
     coin = CoinLike(Coin);
     safes[msg.sender].debtIssued = sub(safes[msg.sender].debtIssued, amount);
