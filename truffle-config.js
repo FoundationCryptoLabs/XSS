@@ -34,16 +34,8 @@ console.log("Minimum gas price Mainnet: " + minimumGasPriceMainnet);
 
 
 module.exports = {
-  /**
-   * Networks define how you connect to your ethereum client and let you set the
-   * defaults web3 uses to send transactions. If you don't specify one truffle
-   * will spin up a development blockchain for you on port 9545 when you
-   * run `develop` or `test`. You can ask a truffle command to use a specific
-   * network from the command line, e.g
-   *
-   * $ truffle test --network <network-name>
-   */
 
+   // SETUP for testing using LOCAL RSKJ TESTNET NODE, setup on localhost at port 4444.
   networks: {
     dev: {
       host: "127.0.0.1",     // Localhost (default: none)
@@ -57,11 +49,13 @@ module.exports = {
       networkCheckTimeout: 1e9
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic: {
+      provider: () => new HDWalletProvider({
+        mnemonic: {
             phrase: mnemonicPhrase
           },
           providerOrUrl: 'http://localhost:4444/',
-          pollingInterval: 10e3),
+          pollingInterval: 10e3,
+        }),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
