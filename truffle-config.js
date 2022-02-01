@@ -36,6 +36,7 @@ console.log("Minimum gas price Mainnet: " + minimumGasPriceMainnet);
 module.exports = {
 
    // SETUP for testing using LOCAL RSKJ TESTNET NODE, setup on localhost at port 4444.
+   // eth/metamask derivationPath used.
   networks: {
     dev: {
       host: "127.0.0.1",     // Localhost (default: none)
@@ -55,13 +56,12 @@ module.exports = {
           },
           providerOrUrl: 'http://localhost:4444/',
           pollingInterval: 10e3,
+          derivationPath: "m/44'/60'/0'/0/",
         }),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
-      from:"0x8C0fa3aa4A39daDEBF913201B19DE301a9CB1264",
-
     }
   },
 
