@@ -52,7 +52,7 @@ module.exports = {
     testnet: {
       provider: () => new HDWalletProvider({
         mnemonic: {
-            phrase: mnemonicPhrase
+            phrase: mnemonicPhrase,
           },
           providerOrUrl: 'http://localhost:4444/',
           pollingInterval: 10e3,
