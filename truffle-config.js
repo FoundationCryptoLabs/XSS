@@ -71,9 +71,9 @@ module.exports = {
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
-      from: "0xB0084105778f6B22a55C4828B115b4d26C08f3f2",
+      from: "0xb0084105778f6b22a55c4828b115b4d26c08f3f2",
   },
-}, 
+},
   // Set default mocha options here, use special reporters etc.
   mocha: {  },
 
