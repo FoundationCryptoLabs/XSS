@@ -1,4 +1,4 @@
-const CDPtracker = artifacts.require("CDPtracker");
+const SafeTracker = artifacts.require("CDPtracker");
 const Coin = artifacts.require("Coin");
 const Oracle = artifacts.require("Orc");
 
@@ -9,30 +9,11 @@ _Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
 _Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
+//locally deployed addresses (please change these after running truffle migrate --network=dev)
+_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
+_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";
 
-
-// Extra tests moved here to avoid Rate Limit Errors while testing on RSK testnet.
-contract("Oracle", (accounts) => {
-  it("peekCollateralRatio, peekBSMA, peekBX", async function () {
-    const orc_ = await Oracle.new();
-    const march = await orc_.peekCollateralRatio.call()
-    assert.equal(march , 12500);
-});
-
-    it("peekBX", async function () {
-    const orc_ = await Oracle.new();
-    const march2 = await orc_.peekBX.call()
-    assert.equal(march2 , 60000);
-
-});
-    it("peekBSMA", async function () {
-    const orc_ = await Oracle.new();
-    const march2 = await orc_.peekBSMA.call()
-    assert.equal(march2 , 20000);
-});
-});
-
-contract("CDPtracker", (accounts) => {
+contract("SafeTracker", (accounts) => {
 it("[[redeemCoins]] Deposit 12.5 rbtc, mint 10 xBTC debt, transfer 9 xBTC to accounts[1], redeem 8 xBTC for RBTC, check remaining balance = 1 xBTC.", async function () {
     const safe_ = await SafeTracker.new(_Oracle, 10000);
     await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("12.5", "ether")});
@@ -52,7 +33,7 @@ it("[[redeemCoins]] Deposit 12.5 rbtc, mint 10 xBTC debt, transfer 9 xBTC to acc
     assert.equal(num_balance, web3.utils.toWei("1", "ether"));
 });
 
-w
+
 
 
 

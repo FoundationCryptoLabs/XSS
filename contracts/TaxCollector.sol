@@ -35,6 +35,7 @@ abstract contract CDPlike {
     uint256 public globalDebt;
     uint256 public totalSurplus;
     uint256 public lastAR;
+    uint256 public INIT;
 }
 
 
@@ -45,19 +46,19 @@ contract TaxCollector is DSMath {
     address public Treasury;
     CDPlike CDP;
 
-    constructor(address CDPcontract, address TreasuryContract) public {
-       CDP = CDPlike(CDPcontract);
-       Treasury = TreasuryContract;
-    }
-
     //AR : Rate Accumulator
-    // RATE : Global Stability Fee
     struct AR {
       uint256 updateTime;
       uint128 RATE; // [ray]
     }
 
     AR RateAccumulator;
+
+    constructor(address CDPcontract, address TreasuryContract) public {
+       CDP = CDPlike(CDPcontract);
+       Treasury = TreasuryContract;
+       RateAccumulator.RATE= 1*10**27;
+    }
 
     // --- Auth ---
     mapping (address => uint256) public authorizedAccounts;
@@ -90,7 +91,8 @@ contract TaxCollector is DSMath {
     uint128 lastRate = RateAccumulator.RATE;
     if (now <= RateAccumulator.updateTime) {
     uint64 powertime = 86406; // set to 1 day by default. replace with time gap since last update using
-    //uint64 powertime = block.timestamp - INIT
+    uint256 initTime = CDP.INIT();
+    //uint64 powertime = block.timestamp - initTime;
     uint256 rateupdate = rpow(globalStabilityFee, powertime);
     uint256 globalDebt = CDP.globalDebt();
     uint256 globalLastAR = CDP.lastAR();

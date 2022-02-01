@@ -59,8 +59,8 @@ uint256 totalDebt;
 uint256 public globalDebt;
 uint256 totalSurplus;
 uint256 public lastAR; // last AR for system surplus calculation.
-uint256 RATE;
-uint256 INIT;
+uint256 RATE = 1*10**27; // RAY - base value of AR.
+uint256 public INIT;
 
 uint128 globalStabilityFee= 1000000564701133626865910626; //[ray] per second rate, 5% per day setting for testing.
 TaxCollectorLike TC = TaxCollectorLike(0x950fc41BA7Fe437121340955dBaEBe4dE8fb0EB5);
@@ -182,6 +182,22 @@ function updateGlobalDebt(uint256 newDebt) external isAuthorized {
   globalDebt = newDebt;
 }
 
+function gsafes(address account, string memory entry1) public returns(uint256){
+  bytes memory entry = bytes(entry1);
+  SAFE memory newsafe = safes[account];
+  if(keccak256(entry) == keccak256("collateral")){
+    return newsafe.collateral;
+  }
+  if(keccak256(entry) == keccak256("debtissued")){
+    return newsafe.debtIssued;
+  }
+  if(keccak256(entry) == keccak256("updatetime")){
+    return newsafe.updateTime;
+  }      // [wad]
+  if(keccak256(entry) == keccak256("originrate")){
+    return newsafe.originRate;
+  }
+}
 // Function called by TaxCollector Contract
 function issueSurplus(uint256 amount, address treasury) external isAuthorized {
     coin = CoinLike(Coin);
@@ -240,7 +256,7 @@ function updateUserDebt1(address user) public returns(uint256) {
   //uint256 newTime = now;
   safes[user].debtIssued = newDebt;
   // LastupdateTime[user] = newTime;
-  safes[msg.sender].originRate = newrate;
+  safes[user].originRate = newrate;
   uint256 newTime = now;
   safes[user].updateTime = newTime;
   return newDebt;
@@ -259,13 +275,13 @@ function updateUserDebt2(address user) public returns(uint256) {
   //uint256 newTime = now;
   safes[user].debtIssued = newDebt;
   // LastupdateTime[user] = newTime;
-  safes[msg.sender].originRate = newrate;
+  safes[user].originRate = newrate;
   uint256 newTime = now;
   safes[user].updateTime = newTime;
   return newDebt;
 }
 
-
+// compute debt limit based on collateral deposited
 function computeDebtLimit(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    uint256 _collateral = safes[msg.sender].collateral; //Amount of RBTC Collateral in SAFE
@@ -275,6 +291,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
    return currentDebtLimit;
  }
 
+// compute redeem price in BTC for each xBTC
  function computeRedeemPrice(address _oracle) internal returns (uint256){
    Orc = OracleLike(_oracle);
    uint256 currentBX = Orc.peekBX(); //BTC-USD exchange rate
@@ -289,15 +306,16 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
         require(sent, "Failed to send RBTC");
     }
 
- //deposit RBTC collateral in safe
+ // deposit RBTC collateral in safe
  function depositCollateral() public payable {
     require(msg.value>=dust, 'CDPTracker/non-dusty-collateral-required');
     safes[msg.sender].collateral = (safes[msg.sender].collateral) + msg.value;
   }
 
+// take out xBTC debt
   function takeDebt(uint256 amount) public {
+    safes[msg.sender].originRate = updateAccumulatedRate0();
     uint256 debtLimit = computeDebtLimit(Oracle);
-    address user = address(msg.sender);
     uint256 issuedDebt = updateUserDebt1(msg.sender);
     uint256 availableDebt = debtLimit - issuedDebt;
     require(availableDebt >= amount, "CDPTracker/insufficient-collateral-to-mint-stables"); //collateral sufficiency check
@@ -306,9 +324,10 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     globalDebt += amount;
     coin.mint(msg.sender, amount);
     safes[msg.sender].updateTime = now;
-    safes[msg.sender].originRate = updateAccumulatedRate0();
+
   }
 
+// return xBTC debt
   function returnDebt(uint256 amount) public {
     uint256 issuedDebt = updateUserDebt2(msg.sender); // update balance to include interest
     require(issuedDebt >= amount, "CDPTracker/exceeds-debt-amount");
@@ -317,6 +336,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     coin.burn(msg.sender, amount);
   }
 
+// redeem xBTC stablecoins for RBTC collateral at current redemption rate. Maintains price stability
   function redeemCoins(uint256 amount) public payable {
     coin = CoinLike(Coin);
     require(coin.balanceOf(msg.sender)>=amount, "CDPTracker/exceeds-balance");
@@ -326,6 +346,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
     sendRBTC(msg.sender, totalRedemptionAmount);
   }
 
+// withdraw collateral after debts have been repaid
   function removeCollateral(uint256 amount) public payable {
      require(amount>=dust, 'CDPTracker/non-dusty-collateral-required');
      uint256 _collateral = safes[msg.sender].collateral; //Amount of RBTC Collateral in CDP

@@ -1,12 +1,12 @@
-const SafeTracker = artifacts.require("SafeTracker");
+const SafeTracker = artifacts.require("CDPTracker");
 const Coin = artifacts.require("Coin");
 const Oracle = artifacts.require("Orc");
 
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
-_Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
-_Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
+_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
+_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";
 
 contract("Oracle", (accounts) => {
   it("peekCollateralRatio, peekBSMA, peekBX", async function () {
@@ -38,20 +38,22 @@ contract("SafeTracker", (accounts) => {
   it("Deposit 0.02 RBTC, check collateral balance [[depositCollateral]]", async function () {
       //await web3.eth.sendTransaction({to:accounts[0], from:accounts[1], value:web3.utils.toWei('30', 'ether')});
       const safe_ = await SafeTracker.new(_Oracle, 10000);
-      await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.02", "ether")})
-      assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("0.02", "ether"));
+      await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.02", "ether")});
+      const result_ = await safe_.gsafes.call(accounts[0], "collateral");
+      assert.equal(result_, web3.utils.toWei("0.02", "ether"));
         });
 
   // Test opening a CDP position by depositing Collateral and parially withdrawing collateral; + system accounting checks.
-  it("Deposit 0.1 RBTC, Withdraw 0.09 RBTC, verify collateral balance is 1 RBTC [[removeCollateral]]", async function () {
+  it("Deposit 10 RBTC, Withdraw 9 RBTC, verify collateral balance is 1 RBTC [[removeCollateral]]", async function () {
       const safe_ = await SafeTracker.new(_Oracle, 10000);
       await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("10", "ether")});
       await safe_.removeCollateral(web3.utils.toWei("9", "ether"));
-      assert.equal(await safe_.collateral(accounts[0]), web3.utils.toWei("1", "ether"));
+      const result_ = await safe_.gsafes.call(accounts[0], "collateral");
+      assert.equal(result_, web3.utils.toWei("1", "ether"));
   });
 
   // Test Debt issuance based on the rules of the protocol
-  it("[[takeDebt]] Deposit 0.125 rbtc, mint 0.1 xBTC debt, verify debtIssued", async function () {
+  it("[[takeDebt]] Deposit 0.125 rbtc, mint 0.1 xBTC debt, verify debtIssued.", async function () {
       const safe_ = await SafeTracker.new(_Oracle, 10000);
       await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.125", "ether")});
       //add safe to coin
@@ -61,11 +63,12 @@ contract("SafeTracker", (accounts) => {
       await coin_.addAuthorization(safe_.address);
       await safe_.setCoin(coin_.address);
       await safe_.takeDebt(web3.utils.toWei("0.10", "ether"));
-      assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.10", "ether"));
+      const result_ = await safe_.gsafes.call(accounts[0], "debtissued");
+      assert.equal(result_, web3.utils.toWei("0.10", "ether"));
     });
 
   it("Deposit 0.0125 rbtc, mint 0.01 xBTC debt, attempt to withdraw 0.0125 btc, FAILS [[expected error: CDPTracker/debt-not-repaid]]", async function () {
-          const safe_ = await CDPtracker.new(_Oracle, 10000);
+          const safe_ = await SafeTracker.new(_Oracle, 10000);
           await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.0225", "ether")});
           // add safe to coin
           // const coin_ = Coin.at("0x597a0F47572a359410883A58eb001aca990226ec");
@@ -74,7 +77,7 @@ contract("SafeTracker", (accounts) => {
           await coin_.addAuthorization(safe_.address);
           await safe_.setCoin(coin_.address);
           await safe_.takeDebt(web3.utils.toWei("0.010", "ether"));
-          assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.010", "ether"));
+          // assert.equal(await safe_.debtIssued(accounts[0]), web3.utils.toWei("0.010", "ether"));
           await safe_.removeCollateral(web3.utils.toWei("0.009", "ether")); // FAILS
         });
   // Test take out xBTC debt, transfer to another user, who redeems it at current redemption rate ($20000 by default)
