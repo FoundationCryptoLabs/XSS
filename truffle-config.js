@@ -54,9 +54,9 @@ module.exports = {
         mnemonic: {
             phrase: mnemonicPhrase,
           },
-          providerOrUrl: 'http://localhost:4444/',
+          providerOrUrl: 'https://public-node.testnet.rsk.co',
           pollingInterval: 10e3,
-          derivationPath: "m/44'/37310'/0'/0/0",
+          // derivationPath: "m/44'/37310'/0'/0",
         }),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
