@@ -62,15 +62,15 @@ module.exports = {
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
-      from: "0x8C0fA3Aa4A39DadEbf913201B19dE301a9cB1264",
+      from: "0xB0084105778f6B22a55C4828B115b4d26C08f3f2",
     },
     testnet2: {
-      provider: () => new HDWalletProvider(mnemonicPhrase, 'http://localhost:4444/',0),
+      provider: () => new HDWalletProvider(mnemonicPhrase, 'http://localhost:4444/'),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
       deploymentPollingInterval: 15e3,
-      from: "0x8C0fa3aa4A39daDEBF913201B19DE301a9CB1264",
+      from: "0x8C0fA3Aa4A39DadEbf913201B19dE301a9cB1264",
   },
 },
   // Set default mocha options here, use special reporters etc.
