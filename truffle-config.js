@@ -59,7 +59,9 @@ module.exports = {
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
-      deploymentPollingInterval: 15e3
+      deploymentPollingInterval: 15e3,
+      from:"0x8C0fa3aa4A39daDEBF913201B19DE301a9CB1264",
+
     }
   },
 
