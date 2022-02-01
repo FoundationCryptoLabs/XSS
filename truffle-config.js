@@ -3,7 +3,7 @@
 const fs = require('fs');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
-const mnemonic = process.env["MNEMONIC"];
+const mnemonicPhrase = process.env["MNEMONIC"];
 
 
 //Update gas price Testnet
@@ -57,12 +57,15 @@ module.exports = {
       networkCheckTimeout: 1e9
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic, 'http://localhost:4444/'),
+      provider: () => new HDWalletProvider(mnemonic: {
+            phrase: mnemonicPhrase
+          },
+          providerOrUrl: 'http://localhost:4444/',
+          pollingInterval: 10e3),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 1.1),
       networkCheckTimeout: 1e9,
-      pollingblock: 10e3,
-      deploymentPollingBlock: 15e3
+      deploymentPollingInterval: 15e3
     }
   },
 
