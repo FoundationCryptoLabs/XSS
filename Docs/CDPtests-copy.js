@@ -9,6 +9,9 @@ _Oracle ="0xDEf2acE4F0991a22d0CC6947C2186b25e43b23A5";
 _Coin ="0xd55C40a83fa1C23F40AC86b4a4974577c10cD8C0";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
+// Local Ganache deployed addresses:
+_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
+_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";
 
 
 contract("Coin", (accounts) => {

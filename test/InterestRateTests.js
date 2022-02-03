@@ -5,6 +5,8 @@ const Oracle = artifacts.require("Orc");
 web3=require('web3')
 
 //RSK Testnet Deployed Addresses:
+_Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
+_Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
 _Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
