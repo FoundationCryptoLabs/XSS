@@ -18,27 +18,38 @@ Ensure you have the latest version of NodeJS, npm and truffle.js installed.
 `npm install`
 
 2. Export mnemonic
-`export MNEMONIC= "star earth moon ... "` [Replace with actual mnemonic of account with testnet RBTC]
-
-3. Compile contracts
-`truffle compile`
+`export MNEMONIC= "star earth moon ... "` (Replace with actual mnemonic of account with testnet RBTC in accounts[0] AND accounts[1])
 
 *A. Testing locally using ganache*
 Ensure ganache local node is running on port 7545.
 Use the Ganache created mnemonic for step (2) above.
 
-4. Run tests
+3. Compile and migrate contracts
+`truffle migrate --network=dev`
+
+4. add contract addresses to all 3 testing files [replace with addresses from step 3]:
+`_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
+_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";`
+
+5. Run tests
 `truffle test --network=dev`
 
 
 *B. Testing on RSK TESTNET*
-Use mnemonic for address with sufficient testRBTC for step (2) above.
+Make sure you use mnemonic for address with sufficient testRBTC for step (2) above.
+6. Compile and migrate contracts
+`truffle migrate --network=testnet`
 
-5. Run tests
+7. Uncomment RSK testnet contract addresses to all 3 testing files:
+`_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
+_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";`
+
+8. Run tests
 `truffle test --network=testnet`
 
 Contracts are deployed on the testnet on following addresses. You can also interact directly with the contract functions to test them (using rskexplorer UI or any other software). Basic tests of ERC20 functionality/authorizedAccounts functionality are excluded for simplicity in this repo.
 
-CDPTracker: https://explorer.testnet.rsk.co/address/0xc4aed98e77fcd523ee6506d18efb39963029c873
+CDPTracker[updated]: https://explorer.testnet.rsk.co/address/0x7a0984E49418759Ef975F7d1d93f5606A8055b38
 Coin: https://explorer.testnet.rsk.co/address/0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0
 Oracle: https://explorer.testnet.rsk.co/address/0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7
+TaxCollector:https://explorer.testnet.rsk.co/address/0xd275F1D2fceB349dF85c7DF7ED7572EE8ccdf20f
