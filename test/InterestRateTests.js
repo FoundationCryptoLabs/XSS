@@ -4,15 +4,14 @@ const Oracle = artifacts.require("Orc");
 
 web3=require('web3')
 
-//RSK Testnet Deployed Addresses:
-_Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
-_Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
 _Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
 _Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
 
-//_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
+//RSK Testnet Deployed Addresses [Uncomment for testnet]
+//_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
+//_Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";
 
 contract("SafeTracker", (accounts) => {
   it("Take 0.01 xBTC debt, check interest rate is being accrued", async function() {

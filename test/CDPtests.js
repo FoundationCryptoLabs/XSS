@@ -4,13 +4,15 @@ const Oracle = artifacts.require("Orc");
 
 web3=require('web3')
 
-//RSK Testnet Deployed Addresses:
-_Oracle ="0x6396d118a1B4442ccC9a1644E3ADA3474eE9b087";
-_Coin ="0xE98e8cE36012e27b806090FDa87eC04b8f078803";
+
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
 _Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
 _Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
+
+//RSK Testnet Deployed Addresses [Uncomment for testnet]
+//_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
+//_Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";
 
 
 contract("SafeTracker", (accounts) => {
