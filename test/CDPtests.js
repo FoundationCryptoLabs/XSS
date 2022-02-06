@@ -9,8 +9,8 @@ _Oracle ="0x6396d118a1B4442ccC9a1644E3ADA3474eE9b087";
 _Coin ="0xE98e8cE36012e27b806090FDa87eC04b8f078803";
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
-_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
-_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";
+_Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
+_Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
 
 
 contract("SafeTracker", (accounts) => {
@@ -29,7 +29,7 @@ contract("SafeTracker", (accounts) => {
   it("Deposit 0.010 RBTC, Withdraw 0.09 RBTC, verify collateral balance is 0.001 RBTC [[removeCollateral]]", async function () {
       const safe_ = await SafeTracker.new(_Oracle, 10000);
       await safe_.depositCollateral({from:accounts[0], value: web3.utils.toWei("0.010", "ether")});
-      await safe_.removeCollateral(web3.utils.toWei("0.09", "ether"));
+      await safe_.removeCollateral(web3.utils.toWei("0.009", "ether"));
       const result_ = await safe_.gsafes.call(accounts[0], "collateral");
       assert.equal(result_, web3.utils.toWei("0.001", "ether"));
   });

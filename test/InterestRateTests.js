@@ -9,8 +9,8 @@ _Oracle ="0x6fAF06e91a6aDB799d6211551fA09BB276a4c5E3";
 _Coin ="0x53c7eC0675885769a01E0FA351af0b3E61E8FE07";
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
-_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
-_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";
+_Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
+_Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
 
 //_Oracle="0x29e30dC86578E336a0930012315aed2d398802b4"
 
