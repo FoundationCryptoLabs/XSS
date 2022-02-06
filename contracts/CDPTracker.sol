@@ -118,17 +118,12 @@ function removeAuthorization(address account) external isAuthorized {
 /**
 * @notice Checks whether msg.sender can call an authed function
 **/
-
-event UpdateAccumulatedRate(
-    address surplusDst,
-    int256 rateMultiplier,
-    uint256 globalDebt
-);
-
 modifier isAuthorized {
     require(authorizedAccounts[msg.sender] == 1, "Coin/account-not-authorized");
     _;
 }
+
+
 
 // math
 function add(uint256 x, int256 y) internal pure returns (uint256 z) {
@@ -170,6 +165,11 @@ function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
 
 function setCoin(address STABLE) external isAuthorized {
   Coin = STABLE;
+}
+
+// Called by Executor.sol when governance votes to change interest rate.
+function setInterest(uint256 StabilityFee) external isAuthorized {
+  globalStabilityFee = StabilityFee;
 }
 
 // Function called by TaxCollector Contract
