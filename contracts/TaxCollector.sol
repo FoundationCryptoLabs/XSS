@@ -91,8 +91,8 @@ contract TaxCollector is DSMath {
     uint128 lastRate = RateAccumulator.RATE;
     if (now <= RateAccumulator.updateTime) {
     uint64 powertime = 86406; // set to 1 day by default. replace with time gap since last update using
-    uint256 initTime = CDP.INIT();
     //uint64 powertime = block.timestamp - initTime;
+    uint256 initTime = CDP.INIT();
     uint256 rateupdate = rpow(globalStabilityFee, powertime);
     uint256 globalDebt = CDP.globalDebt();
     uint256 globalLastAR = CDP.lastAR();

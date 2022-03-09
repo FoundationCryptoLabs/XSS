@@ -41,8 +41,8 @@ Make sure you use mnemonic for address with sufficient testRBTC for step (2) abo
 `truffle migrate --network=testnet`
 
 7. Uncomment RSK testnet contract addresses to all 3 testing files:
-`_Oracle ="0xD2D9Ae45A4df94CA4c921F65cb8Ece0f968140f5";
-_Coin ="0xc3dDD87D860C7b2b5e11F57026B603D1684DAeEB";`
+`_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
+_Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";`
 
 8. Run tests
 `truffle test --network=testnet`
