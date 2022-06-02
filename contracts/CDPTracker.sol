@@ -105,7 +105,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
    uint256 _collateral = collateral[msg.sender]; //Amount of RBTC Collateral in SAFE
    uint256 currentBX = Orc.peekBX();
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
-   uint256 currentDebtLimit = _collateral * currentCollateralRatio; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
+   uint256 currentDebtLimit = _collateral * currentCollateralRatio / 10000; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
    return currentDebtLimit;
  }
 
@@ -127,6 +127,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
  function depositCollateral() public payable {
     require(msg.value>=dust, 'CDPTracker/non-dusty-collateral-required');
     collateral[msg.sender] = (collateral[msg.sender]) + msg.value;
+    debtIssued[msg.sender] = 0;
   }
 
   function takeDebt(uint256 amount) public {

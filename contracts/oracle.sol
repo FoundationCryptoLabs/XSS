@@ -36,7 +36,7 @@ contract Orc {
   }
 
   // Default Collateral Ratio of 125%
-  uint256 collateralRatio = 12500;
+  public uint256 collateralRatio = 12500;
   function setCollateralRatio(uint256 ratio) external isAuthorized {
       collateralRatio = ratio;
   }

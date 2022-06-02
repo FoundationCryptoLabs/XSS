@@ -55,7 +55,7 @@ module.exports = {
       networkCheckTimeout: 1e9
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic, 'http://172.31.9.204:4444'), //, "m/44'/37310'/0'/0/"),
+      provider: () => new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'), //, "m/44'/37310'/0'/0/"),
       network_id: 31,
       gasPrice: Math.floor(minimumGasPriceTestnet * 10),
       networkCheckTimeout: 1e9,
