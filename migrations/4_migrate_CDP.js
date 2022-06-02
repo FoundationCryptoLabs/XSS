@@ -8,8 +8,10 @@ const TCol = artifacts.require("TaxCollector");
 module.exports = function (deployer) {
   // _CoinAdd = deployer.deploy(Coin, "Zero Volatility BTC","xBTC", "5777");
   // _OracleAdd = deployer.deploy(Oracle);
-  _Oracle ="0x6F86A8ED6576e64DF87E1C52923967e26880a8dC";
-  _Coin ="0x67ead23FCa16bDC4321d00b4504BfbA3AcE22A93";
+  //_Oracle ="0x6F86A8ED6576e64DF87E1C52923967e26880a8dC";
+  _Coin ="0xeBAE72FAAca0b3a0C2aEF2544aDC4B247bB596F3";
+  _Oracle = "0xf16f193d3eD148be21f6D458AAEBF08434435320"
+  //_Coin = "0x5F0F963821a05DF5094aA4Ebd12F7803b3B49e95"
   _SafeAdd = deployer.deploy(SafeTracker, _Oracle, 10000);
-  _TaxAdd = deployer.deploy(TCol, "0xC2b98c90Cf225086551Cd8bb385aC88Ed239dCa0","0x7D4b9E4CccA323d0761f450163bAf15B664f5284");
+  // _TaxAdd = deployer.deploy(TCol, "0x4B45A2B43564Ad6372b9FCC4B798979D8852E5aE","0xfC96f45224a898a795570C2CeE868BD2a2F8E6e4");
 };

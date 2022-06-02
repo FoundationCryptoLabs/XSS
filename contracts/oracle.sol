@@ -36,7 +36,7 @@ contract Orc {
   }
 
   // Default Collateral Ratio of 125%
-  uint256 collateralRatio = 12500;
+  uint256 collateralRatio = 125;
   function setCollateralRatio(uint256 ratio) external isAuthorized {
       collateralRatio = ratio;
   }
@@ -47,13 +47,13 @@ contract Orc {
 
   // Returns current 4 year SMA for BTC/USD. FIXME: Template Function used.
   function peekBSMA() external returns(uint256){
-    uint256 BSMA = 20000;
+    uint256 BSMA = 18000;
     return BSMA;
   }
 
 // Returns current BTC/USD exchange rate. FIXME: Template Function used.
   function peekBX() external returns(uint256){
-    uint256 BX = 60000;
+    uint256 BX = 40000;
     return BX;
   }
 }

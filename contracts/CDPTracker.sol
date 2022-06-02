@@ -63,8 +63,8 @@ uint256 RATE = 1*10**27; // RAY - base value of AR.
 uint256 public INIT;
 
 uint128 globalStabilityFee= 1000000564701133626865910626; //[ray] per second rate, 5% per day setting for testing.
-TaxCollectorLike TC = TaxCollectorLike(0xd275F1D2fceB349dF85c7DF7ED7572EE8ccdf20f); // RSK testnet address
-
+// TaxCollectorLike TC = TaxCollectorLike(0xd275F1D2fceB349dF85c7DF7ED7572EE8ccdf20f); // RSK testnet address
+TaxCollectorLike TC = TaxCollectorLike(0xFB1dFE7b4c479fc6383e21d42c51127bFcB44b3F);
 // mapping (address => uint256) LastupdateTime;
 // mapping (address => uint128) originRate;
 
@@ -168,7 +168,7 @@ function setCoin(address STABLE) external isAuthorized {
 }
 
 // Called by Executor.sol when governance votes to change interest rate.
-function setInterest(uint256 StabilityFee) external isAuthorized {
+function setInterest(uint128 StabilityFee) external isAuthorized {
   globalStabilityFee = StabilityFee;
 }
 
@@ -287,7 +287,7 @@ function computeDebtLimit(address _oracle) internal returns (uint256){
    uint256 _collateral = safes[msg.sender].collateral; //Amount of RBTC Collateral in SAFE
    uint256 currentBX = Orc.peekBX();
    uint256 currentCollateralRatio = Orc.peekCollateralRatio(); //12500 by default, to be divided by 100
-   uint256 currentDebtLimit = _collateral * currentCollateralRatio; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
+   uint256 currentDebtLimit = _collateral * currentCollateralRatio / 100; // 1 xBTC can be minted (borrowed) for every 1.25 BTC collateral by default.
    return currentDebtLimit;
  }
 

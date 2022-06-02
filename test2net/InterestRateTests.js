@@ -6,12 +6,18 @@ web3=require('web3')
 
 
 //locally deployed addresses (please change these after running truffle migrate --network=dev)
-_Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
-_Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
+//_Oracle ="0x6f866e57B012e9E682906842c2129fddD664eDA1";
+// _Coin ="0x53A050dEa87F8A56c70705ba2dcA19d04e7177ac";
 
+//_Oracle = "0x60F1a423D19C76D4ce585a0A3133072E8b2Ce015"
+//_Coin = "0x5F0F963821a05DF5094aA4Ebd12F7803b3B49e95"
 //RSK Testnet Deployed Addresses [Uncomment for testnet]
 //_Oracle ="0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7";
 //_Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";
+
+
+_Coin ="0xeBAE72FAAca0b3a0C2aEF2544aDC4B247bB596F3";
+_Oracle = "0xf16f193d3eD148be21f6D458AAEBF08434435320"
 
 contract("SafeTracker", (accounts) => {
   it("Take 0.01 xBTC debt, check interest rate is being accrued", async function() {
