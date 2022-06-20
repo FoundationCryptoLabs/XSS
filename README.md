@@ -49,6 +49,12 @@ _Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";`
 
 Contracts are deployed on the testnet on following addresses. You can also interact directly with the contract functions to test them (using rskexplorer UI or any other software). Basic tests of ERC20 functionality/authorizedAccounts functionality are excluded for simplicity in this repo.
 
+NEW:
+ _Coin = "0x5F0F963821a05DF5094aA4Ebd12F7803b3B49e95" //testnet2
+ _Oracle = "0x60F1a423D19C76D4ce585a0A3133072E8b2Ce015" //testnet2
+ _Safe = "0x7Ffb46440335D0cF5ad54e1c909d76Baa3e6947f" 
+
+old:
 CDPTracker[updated]: https://explorer.testnet.rsk.co/address/0x7a0984E49418759Ef975F7d1d93f5606A8055b38
 Coin: https://explorer.testnet.rsk.co/address/0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0
 Oracle: https://explorer.testnet.rsk.co/address/0x2Ef2757bD2c469a7F8afa251f17700aaa6B9F3B7
