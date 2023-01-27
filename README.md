@@ -49,6 +49,8 @@ _Coin ="0x3bf9e5bb65c580fbe1936bd7edd60aaad4f38eb0";`
 
 Contracts are deployed on the testnet on following addresses. You can also interact directly with the contract functions to test them (using rskexplorer UI or any other software). Basic tests of ERC20 functionality/authorizedAccounts functionality are excluded for simplicity in this repo.
 
+DEMO: https://www.youtube.com/watch?v=YeCB6DlZd8g
+
 NEW:
  _Coin = "0x5F0F963821a05DF5094aA4Ebd12F7803b3B49e95" //testnet2
  _Oracle = "0x60F1a423D19C76D4ce585a0A3133072E8b2Ce015" //testnet2
